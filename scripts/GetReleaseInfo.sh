@@ -20,6 +20,8 @@ commitid=$(git log --pretty='%h' -1)
 mcversion=$(prop mcVersion)
 gradleVersion=$(prop version)
 preVersion=$(prop preVersion)
+repo="${GITHUB_REPOSITORY:-$(prop githubRepo)}"
+repo="${repo:-LeavesMC/Leaves}"
 tagid="$mcversion-$BUILD_NUMBER-$commitid"
 jarName="leaves-$mcversion.jar"
 leavesid="Leaves-$tagid"
@@ -42,7 +44,7 @@ mv leaves-server/build/libs/leaves-leavesclip-"$gradleVersion".jar "$jarName"
 } >> "$GITHUB_ENV"
 
 {
-  echo "$leavesid [![download](https://img.shields.io/github/downloads/LeavesMC/Leaves/$tagid/total?color=0)](https://github.com/LeavesMC/Leaves/releases/download/$tagid/$jarName)"
+  echo "$leavesid [![download](https://img.shields.io/github/downloads/$repo/$tagid/total?color=0)](https://github.com/$repo/releases/download/$tagid/$jarName)"
   echo "====="
   echo ""
   if [ "$preVersion" = "true" ]; then
@@ -53,7 +55,13 @@ mv leaves-server/build/libs/leaves-leavesclip-"$gradleVersion".jar "$jarName"
   echo "### Commit Message"
 } >> $releaseinfo
 
-number=$(git log --oneline master ^"$(git describe --tags --abbrev=0)" | wc -l)
+default_branch=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@' || true)
+default_branch="${default_branch:-master}"
+if git describe --tags --abbrev=0 >/dev/null 2>&1; then
+  number=$(git log --oneline "$default_branch" ^"$(git describe --tags --abbrev=0)" | wc -l)
+else
+  number=$(git log --oneline -20 | wc -l)
+fi
 git log --pretty='> [%h] %s' "-$number" >> $releaseinfo
 
 {
@@ -67,7 +75,7 @@ git log --pretty='> [%h] %s' "-$number" >> $releaseinfo
 } >> $releaseinfo
 
 {
-  echo -n "{\"content\":\"Leaves New Release\",\"embeds\":[{\"title\":\"$leavesid\",\"url\":\"https://github.com/LeavesMC/Leaves/releases/tag/$tagid\",\"fields\":[{\"name\":\"Changelog\",\"value\":\""
+  echo -n "{\"content\":\"Leaves New Release\",\"embeds\":[{\"title\":\"$leavesid\",\"url\":\"https://github.com/$repo/releases/tag/$tagid\",\"fields\":[{\"name\":\"Changelog\",\"value\":\""
   # shellcheck disable=SC2046
   echo -n $(git log --oneline --pretty='> [%h] %s\\n' "-$number")
   echo "\",\"inline\":true}]}]}"

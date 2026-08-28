@@ -93,7 +93,7 @@
      implementation("ca.spottedleaf:leafpile:1.2.0")
      implementation("org.jline:jline-terminal-ffm:3.27.1") // use ffm on java 22+
      implementation("org.jline:jline-terminal-jni:3.27.1") // fall back to jni on java 21
-@@ -159,26 +196,36 @@
+@@ -159,26 +196,41 @@
      implementation("me.lucko:spark-paper:1.10.180")
  }
  
@@ -117,7 +117,12 @@
          val gitHash = git.exec(providers, "rev-parse", "--short=7", "HEAD").get().trim()
          val implementationVersion = "$mcVersion-${build ?: "DEV"}-$gitHash"
          val date = git.exec(providers, "show", "-s", "--format=%ci", gitHash).get().trim()
-         val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
+-        val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
++        val detectedBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
++        val gitBranch = System.getenv("GITHUB_REF_NAME")?.takeIf { it.isNotBlank() && !it.startsWith("refs/") }
++            ?: detectedBranch.takeUnless { it == "HEAD" }
++            ?: "master"
++        val gitRepo = rootProject.providers.gradleProperty("githubRepo").orElse("LeavesMC/Leaves").get()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
 -            "Implementation-Title" to "Paper",
@@ -136,6 +141,7 @@
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
++            "Git-Repo" to gitRepo,
 @@ -246,7 +293,7 @@
      jvmArgumentProviders.add(provider)
  }

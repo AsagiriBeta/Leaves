@@ -1,9 +1,6 @@
 name: Leaves Test CI
 
 on:
-  push:
-    branches-ignore: [ master ]
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -35,7 +32,7 @@ jobs:
           prop() {
             awk -F= -v key="$1" '$1 == key { val = $2; sub(/[[:space:]]*#.*$/, "", val); gsub(/^[[:space:]]+|[[:space:]]+$/, "", val); print val }' gradle.properties
           }
-          
+
           jarName="leaves-$(prop mcVersion).jar"
           mv leaves-server/build/libs/leaves-leavesclip-"$(prop version)".jar "$jarName"
           echo "jar=$jarName" >> "$GITHUB_ENV"
