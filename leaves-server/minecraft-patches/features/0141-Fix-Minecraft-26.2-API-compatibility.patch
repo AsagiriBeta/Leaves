@@ -124,6 +124,32 @@ index 272de0ee89b8a21f6024c93710c260904a4f4e94..768d01f29863dcb4064c2fd44ec4d5e2
      protected boolean wasUnderwater;
      private final Abilities abilities = new Abilities();
      public int experienceLevel = 0;
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
+index df10a76f8f43a0a483d4e59c55d5d78a723fb502..fae12028cded90eb69813b852b8bfd36f4b1ea42 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
+@@ -60,7 +60,7 @@ public class Snowball extends ThrowableItemProjectile {
+         // Leaves start - make snowball can knockback player
+         if (org.leavesmc.leaves.LeavesConfig.modify.snowballAndEggCanKnockback && entity instanceof net.minecraft.server.level.ServerPlayer player) {
+             player.hurt(this.damageSources().thrown(this, this.getOwner()), 0.0000001F);
+-            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
++            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this.damageSources().thrown(this, this.getOwner()), 0.0F, this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
+         }
+         // Leaves end - make snowball can knockback player
+     }
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
+index 77c0d952253ef50a404445630dda56a93befd89e..5ec6019c2ad51763a6e25422a0944e5b24e5a1fc 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
+@@ -64,7 +64,7 @@ public class ThrownEgg extends ThrowableItemProjectile {
+         // Leaves start - make egg can knockback player
+         if (org.leavesmc.leaves.LeavesConfig.modify.snowballAndEggCanKnockback && hitResult.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+             player.hurt(this.damageSources().thrown(this, this.getOwner()), 0.0000001F);
+-            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
++            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this.damageSources().thrown(this, this.getOwner()), 0.0F, this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
+         }
+         // Leaves end - make egg can knockback player
+     }
 diff --git a/net/minecraft/world/entity/raid/Raid.java b/net/minecraft/world/entity/raid/Raid.java
 index e297062af0a34be04d8f054baa3824744f5c55e2..90d826e2bb1b077d87bc9f81d77e4e66f824ca9c 100644
 --- a/net/minecraft/world/entity/raid/Raid.java
