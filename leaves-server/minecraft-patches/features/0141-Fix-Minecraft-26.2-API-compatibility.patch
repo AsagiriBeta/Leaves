@@ -111,6 +111,19 @@ index d5ed4718268d7e07ca91a5807cd1967997037e88..fcc0de15d42e6571d0cea0545b52fb0c
              Zombie reinforcement = type.create(level, EntitySpawnReason.REINFORCEMENT);
              if (reinforcement == null) {
                  return true;
+diff --git a/net/minecraft/world/entity/player/Inventory.java b/net/minecraft/world/entity/player/Inventory.java
+index 47e1a18cc7fee51971a113fa4d6f4f8f2e45d736..4b86bc6e8f3a2af76bd7c71e74d9f6aa0472d7e4 100644
+--- a/net/minecraft/world/entity/player/Inventory.java
++++ b/net/minecraft/world/entity/player/Inventory.java
+@@ -179,7 +179,7 @@ public class Inventory implements Container, Nameable {
+         int remains = itemStack.getCount();
+ 
+         // Leaves start - vanilla creative pickup behavior
+-        if (player.hasInfiniteMaterials()) {
++        if (player != null && player.hasInfiniteMaterials()) {
+             return remains;
+         }
+         // Leaves end - vanilla creative pickup behavior
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
 index 272de0ee89b8a21f6024c93710c260904a4f4e94..768d01f29863dcb4064c2fd44ec4d5e216727772 100644
 --- a/net/minecraft/world/entity/player/Player.java
