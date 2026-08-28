@@ -966,6 +966,9 @@ public final class LeavesConfig {
             @GlobalConfig("entity-protocol")
             public boolean entityProtocol = false;
 
+            @GlobalConfig("tweaks-protocol")
+            public boolean tweaksProtocol = false;
+
             @GlobalConfig("hud-metadata-protocol")
             public boolean hudMetadataProtocol = false;
 

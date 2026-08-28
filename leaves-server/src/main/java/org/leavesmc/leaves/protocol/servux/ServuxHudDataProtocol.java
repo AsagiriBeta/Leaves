@@ -37,7 +37,7 @@ import java.util.Map;
 @LeavesProtocol.Register(namespace = "servux")
 public class ServuxHudDataProtocol implements LeavesProtocol {
 
-    public static final int PROTOCOL_VERSION = 2;
+    public static final int PROTOCOL_VERSION = 3;
 
     private static final List<ServerPlayer> players = new ArrayList<>();
     private static final int updateInterval = 80;
@@ -82,6 +82,10 @@ public class ServuxHudDataProtocol implements LeavesProtocol {
             case PACKET_C2S_SPAWN_DATA_REQUEST -> refreshSpawnMetadata(player);
             case PACKET_C2S_RECIPE_MANAGER_REQUEST -> refreshRecipeManager(player);
             case PACKET_C2S_DATA_LOGGER_REQUEST -> refreshLoggers(player, payload.nbt);
+            case PACKET_C2S_UNREGISTER_REPLY -> {
+                players.remove(player);
+                loggerPlayers.remove(player);
+            }
         }
     }
 
@@ -171,6 +175,7 @@ public class ServuxHudDataProtocol implements LeavesProtocol {
         metadata.putInt("spawnPosX", spawnPos.getX());
         metadata.putInt("spawnPosY", spawnPos.getY());
         metadata.putInt("spawnPosZ", spawnPos.getZ());
+        metadata.putString("spawnDimension", level.dimension().identifier().toString());
         // metadata.putInt("spawnChunkRadius", level.getGameRules().getInt(GameRules.RULE_SPAWN_CHUNK_RADIUS)); // TODO: 1.21.9 removed spawn chunk, should we keep this?
 
         if (LeavesConfig.protocol.servux.hudMetadataShareSeed) {
@@ -283,6 +288,7 @@ public class ServuxHudDataProtocol implements LeavesProtocol {
         PACKET_C2S_RECIPE_MANAGER_REQUEST(6),
         PACKET_S2C_DATA_LOGGER_TICK(7),
         PACKET_C2S_DATA_LOGGER_REQUEST(8),
+        PACKET_C2S_UNREGISTER_REPLY(9),
         // For Packet Splitter (Oversize Packets, S2C)
         PACKET_S2C_NBT_RESPONSE_START(10),
         PACKET_S2C_NBT_RESPONSE_DATA(11);
@@ -316,23 +322,28 @@ public class ServuxHudDataProtocol implements LeavesProtocol {
                     case PACKET_S2C_NBT_RESPONSE_DATA -> buf.writeBytes(payload.buffer().copy());
                     case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA, PACKET_C2S_SPAWN_DATA_REQUEST,
                          PACKET_S2C_SPAWN_DATA, PACKET_S2C_WEATHER_TICK, PACKET_C2S_RECIPE_MANAGER_REQUEST,
-                         PACKET_C2S_DATA_LOGGER_REQUEST, PACKET_S2C_DATA_LOGGER_TICK -> buf.writeNbt(payload.nbt());
+                         PACKET_C2S_DATA_LOGGER_REQUEST, PACKET_S2C_DATA_LOGGER_TICK, PACKET_C2S_UNREGISTER_REPLY -> buf.writeNbt(payload.nbt());
                 }
             },
             buf -> {
                 HudDataPayloadType type = HudDataPayloadType.fromId(buf.readVarInt());
                 if (type == null) {
+                    ServuxProtocol.skipRemaining(buf);
                     throw new IllegalStateException("invalid packet type received");
                 }
                 switch (type) {
                     case PACKET_S2C_NBT_RESPONSE_DATA -> {
                         return new HudDataPayload(type, new FriendlyByteBuf(buf.readBytes(buf.readableBytes())));
                     }
-                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA, PACKET_C2S_SPAWN_DATA_REQUEST, PACKET_S2C_SPAWN_DATA, PACKET_S2C_WEATHER_TICK,
-                         PACKET_C2S_RECIPE_MANAGER_REQUEST, PACKET_C2S_DATA_LOGGER_REQUEST, PACKET_S2C_DATA_LOGGER_TICK -> {
-                        return new HudDataPayload(type, buf.readNbt());
+                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA, PACKET_S2C_SPAWN_DATA, PACKET_S2C_WEATHER_TICK, PACKET_S2C_DATA_LOGGER_TICK -> {
+                        return new HudDataPayload(type, ServuxProtocol.readNbtOrEmpty(buf));
+                    }
+                    case PACKET_C2S_SPAWN_DATA_REQUEST, PACKET_C2S_RECIPE_MANAGER_REQUEST, PACKET_C2S_DATA_LOGGER_REQUEST, PACKET_C2S_UNREGISTER_REPLY -> {
+                        ServuxProtocol.skipRemaining(buf);
+                        return new HudDataPayload(type, new CompoundTag());
                     }
                 }
+                ServuxProtocol.skipRemaining(buf);
                 throw new IllegalStateException("invalid packet type received");
             }
         );

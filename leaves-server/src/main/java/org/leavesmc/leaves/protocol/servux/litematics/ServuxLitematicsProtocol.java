@@ -46,7 +46,7 @@ import java.util.UUID;
 @LeavesProtocol.Register(namespace = "servux")
 public class ServuxLitematicsProtocol implements LeavesProtocol {
 
-    public static final int PROTOCOL_VERSION = 1;
+    public static final int PROTOCOL_VERSION = 2;
 
     private static final CompoundTag metadata = new CompoundTag();
     private static final Map<UUID, Long> playerSession = new HashMap<>();
@@ -94,18 +94,29 @@ public class ServuxLitematicsProtocol implements LeavesProtocol {
 
     @ProtocolHandler.PayloadReceiver(payload = ServuxLitematicaPayload.class)
     public static void onPacketReceive(ServerPlayer player, ServuxLitematicaPayload payload) {
+        switch (payload.packetType) {
+            case PACKET_C2S_METADATA_REQUEST -> {
+                sendMetaData(player);
+                return;
+            }
+            case PACKET_C2S_UNREGISTER_REPLY -> {
+                return;
+            }
+        }
+
         if (!hasPermission(player)) {
             return;
         }
 
         switch (payload.packetType) {
-            case PACKET_C2S_METADATA_REQUEST -> sendMetaData(player);
-
             case PACKET_C2S_BLOCK_ENTITY_REQUEST -> onBlockEntityRequest(player, payload.getPos());
 
             case PACKET_C2S_ENTITY_REQUEST -> onEntityRequest(player, payload.getEntityId());
 
             case PACKET_C2S_BULK_ENTITY_NBT_REQUEST -> onBulkEntityRequest(player, payload.getChunkPos(), payload.getCompound());
+
+            case PACKET_C2S_UNREGISTER_REPLY, PACKET_C2S_TASK_REQUEST, PACKET_C2S_TASK_CANCEL -> {
+            }
 
             case PACKET_C2S_NBT_RESPONSE_DATA -> {
                 ServuxProtocol.LOGGER.debug("nbt response data");
@@ -270,12 +281,17 @@ public class ServuxLitematicsProtocol implements LeavesProtocol {
         PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE(5),
         PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE(6),
         PACKET_C2S_BULK_ENTITY_NBT_REQUEST(7),
+        PACKET_C2S_UNREGISTER_REPLY(8),
         // For Packet Splitter (Oversize Packets, S2C)
         PACKET_S2C_NBT_RESPONSE_START(10),
         PACKET_S2C_NBT_RESPONSE_DATA(11),
         // For Packet Splitter (Oversize Packets, C2S)
         PACKET_C2S_NBT_RESPONSE_START(12),
-        PACKET_C2S_NBT_RESPONSE_DATA(13);
+        PACKET_C2S_NBT_RESPONSE_DATA(13),
+        PACKET_C2S_TASK_REQUEST(14),
+        PACKET_S2C_TASK_RESPONSE(15),
+        PACKET_S2C_TASK_STATUS_SYNC(16),
+        PACKET_C2S_TASK_CANCEL(17);
 
         public final int type;
 
@@ -303,14 +319,8 @@ public class ServuxLitematicsProtocol implements LeavesProtocol {
             (buf, payload) -> {
                 buf.writeVarInt(payload.packetType.type);
                 switch (payload.packetType) {
-                    case PACKET_C2S_BLOCK_ENTITY_REQUEST -> {
-                        buf.writeVarInt(payload.transactionId);
-                        buf.writeBlockPos(payload.pos);
-                    }
-                    case PACKET_C2S_ENTITY_REQUEST -> {
-                        buf.writeVarInt(payload.transactionId);
-                        buf.writeVarInt(payload.entityId);
-                    }
+                    case PACKET_C2S_BLOCK_ENTITY_REQUEST -> buf.writeBlockPos(payload.pos);
+                    case PACKET_C2S_ENTITY_REQUEST -> buf.writeVarInt(payload.entityId);
                     case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> {
                         buf.writeBlockPos(payload.pos);
                         buf.writeNbt(payload.nbt);
@@ -324,45 +334,42 @@ public class ServuxLitematicsProtocol implements LeavesProtocol {
                         buf.writeNbt(payload.nbt);
                     }
                     case PACKET_S2C_NBT_RESPONSE_DATA, PACKET_C2S_NBT_RESPONSE_DATA -> buf.writeBytes(payload.buffer.readBytes(payload.buffer.readableBytes()));
-                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA -> buf.writeNbt(payload.nbt);
+                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA, PACKET_S2C_TASK_RESPONSE, PACKET_S2C_TASK_STATUS_SYNC -> buf.writeNbt(payload.nbt);
+                    case PACKET_C2S_UNREGISTER_REPLY, PACKET_C2S_TASK_REQUEST, PACKET_C2S_TASK_CANCEL -> buf.writeNbt(payload.nbt);
                     default -> ServuxProtocol.LOGGER.error("ServuxLitematicaPacket#toPacket: Unknown packet type!");
                 }
             },
             buf -> {
                 ServuxLitematicaPayloadType type = ServuxLitematicaPayloadType.fromId(buf.readVarInt());
                 if (type == null) {
+                    ServuxProtocol.skipRemaining(buf);
                     throw new IllegalStateException("invalid packet type received");
                 }
                 ServuxLitematicaPayload payload = new ServuxLitematicaPayload(type);
                 switch (type) {
-                    case PACKET_C2S_BLOCK_ENTITY_REQUEST -> {
-                        buf.readVarInt();
-                        payload.pos = buf.readBlockPos().immutable();
-                    }
-                    case PACKET_C2S_ENTITY_REQUEST -> {
-                        buf.readVarInt();
-                        payload.entityId = buf.readVarInt();
-                    }
+                    case PACKET_C2S_BLOCK_ENTITY_REQUEST -> payload.pos = buf.readBlockPos().immutable();
+                    case PACKET_C2S_ENTITY_REQUEST -> payload.entityId = buf.readVarInt();
                     case PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE -> {
                         payload.pos = buf.readBlockPos().immutable();
-                        payload.nbt = buf.readNbt();
+                        payload.nbt = ServuxProtocol.readNbtOrEmpty(buf);
                     }
                     case PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE -> {
                         payload.entityId = buf.readVarInt();
-                        payload.nbt = buf.readNbt();
+                        payload.nbt = ServuxProtocol.readNbtOrEmpty(buf);
                     }
                     case PACKET_C2S_BULK_ENTITY_NBT_REQUEST -> {
                         payload.chunkPos = buf.readChunkPos();
-                        payload.nbt = buf.readNbt();
+                        ServuxProtocol.skipRemaining(buf);
                     }
                     case PACKET_C2S_NBT_RESPONSE_DATA, PACKET_S2C_NBT_RESPONSE_DATA -> payload.buffer = new FriendlyByteBuf(buf.readBytes(buf.readableBytes()));
-                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA -> payload.nbt = buf.readNbt();
+                    case PACKET_C2S_METADATA_REQUEST, PACKET_S2C_METADATA -> payload.nbt = ServuxProtocol.readNbtOrEmpty(buf);
+                    case PACKET_C2S_UNREGISTER_REPLY, PACKET_C2S_TASK_REQUEST, PACKET_C2S_TASK_CANCEL, PACKET_S2C_TASK_RESPONSE, PACKET_S2C_TASK_STATUS_SYNC -> ServuxProtocol.skipRemaining(buf);
                 }
                 return payload;
             }
         );
 
-        public static final int PROTOCOL_VERSION = 1;
+        public static final int PROTOCOL_VERSION = 2;
         private final ServuxLitematicaPayloadType packetType;
         private final int transactionId;
         private int entityId;
