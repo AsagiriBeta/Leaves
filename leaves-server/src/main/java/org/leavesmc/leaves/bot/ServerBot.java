@@ -322,11 +322,11 @@ public class ServerBot extends ServerPlayer {
     }
 
     @Override
-    public void knockback(double strength, double x, double z, @Nullable Entity attacker, EntityKnockbackEvent.@NotNull Cause eventCause) {
+    public void knockback(double strength, double x, double z, DamageSource source, float damage, @Nullable Entity attacker, EntityKnockbackEvent.@NotNull Cause eventCause) {
         if (!this.hurtMarked) {
             return;
         }
-        super.knockback(strength, x, z, attacker, eventCause);
+        super.knockback(strength, x, z, source, damage, attacker, eventCause);
     }
 
     @Override
