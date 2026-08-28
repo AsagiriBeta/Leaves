@@ -44,6 +44,7 @@ public class LitematicaEasyPlaceProtocol {
         BlockStateProperties.RAIL_SHAPE_STRAIGHT,
         BlockStateProperties.SLAB_TYPE,
         BlockStateProperties.STAIRS_SHAPE,
+        BlockStateProperties.COPPER_GOLEM_POSE,
         BlockStateProperties.BITES,
         BlockStateProperties.DELAY,
         BlockStateProperties.NOTE,

@@ -1,5 +1,6 @@
 package org.leavesmc.leaves.protocol;
 
+import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -25,7 +26,7 @@ import java.util.Set;
 public class CarpetServerProtocol implements LeavesProtocol {
 
     public static final String PROTOCOL_ID = "carpet";
-    public static final String VERSION = ProtocolUtils.buildProtocolVersion(PROTOCOL_ID);
+    public static final String VERSION = SharedConstants.getCurrentVersion().id();
 
     private static final String HI = "69";
     private static final String HELLO = "420";

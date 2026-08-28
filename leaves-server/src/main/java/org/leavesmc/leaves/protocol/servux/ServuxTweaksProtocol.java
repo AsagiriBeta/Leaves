@@ -13,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.bukkit.Bukkit;
 import org.leavesmc.leaves.LeavesConfig;
-import org.leavesmc.leaves.LeavesLogger;
 import org.leavesmc.leaves.plugin.MinecraftInternalPlugin;
 import org.leavesmc.leaves.protocol.core.LeavesCustomPayload;
 import org.leavesmc.leaves.protocol.core.LeavesProtocol;
@@ -28,7 +27,7 @@ import java.util.UUID;
 // Powered by Servux(https://github.com/sakura-ryoko/servux)
 
 @LeavesProtocol.Register(namespace = "servux")
-public class ServuxEntityDataProtocol implements LeavesProtocol {
+public class ServuxTweaksProtocol implements LeavesProtocol {
 
     public static final int PROTOCOL_VERSION = 2;
 
@@ -44,8 +43,8 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
         readingSessionKeys.remove(player.getUUID());
     }
 
-    @ProtocolHandler.PayloadReceiver(payload = EntityDataPayload.class)
-    public static void onPacketReceive(ServerPlayer player, EntityDataPayload payload) {
+    @ProtocolHandler.PayloadReceiver(payload = TweaksPayload.class)
+    public static void onPacketReceive(ServerPlayer player, TweaksPayload payload) {
         switch (payload.packetType) {
             case PACKET_C2S_METADATA_REQUEST -> sendMetadata(player);
             case PACKET_C2S_BLOCK_ENTITY_REQUEST -> onBlockEntityRequest(player, payload.pos);
@@ -53,20 +52,10 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
             case PACKET_C2S_UNREGISTER_REPLY -> readingSessionKeys.remove(player.getUUID());
             case PACKET_C2S_NBT_RESPONSE_DATA -> {
                 UUID uuid = player.getUUID();
-                long readingSessionKey;
-
-                if (!readingSessionKeys.containsKey(uuid)) {
-                    readingSessionKey = RandomSource.create(Util.getMillis()).nextLong();
-                    readingSessionKeys.put(uuid, readingSessionKey);
-                } else {
-                    readingSessionKey = readingSessionKeys.get(uuid);
-                }
-
+                long readingSessionKey = readingSessionKeys.computeIfAbsent(uuid, key -> RandomSource.create(Util.getMillis()).nextLong());
                 FriendlyByteBuf fullPacket = PacketSplitter.receive(readingSessionKey, payload.buffer);
-
                 if (fullPacket != null) {
                     readingSessionKeys.remove(uuid);
-                    LeavesLogger.LOGGER.warn("ServuxEntityDataProtocol,PACKET_C2S_NBT_RESPONSE_DATA NOT Implemented!");
                 }
             }
         }
@@ -74,12 +63,14 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
 
     public static void sendMetadata(ServerPlayer player) {
         CompoundTag metadata = new CompoundTag();
-        metadata.putString("name", "entity_data");
-        metadata.putString("id", EntityDataPayload.CHANNEL.toString());
+        metadata.putString("name", "tweaks_data");
+        metadata.putString("id", TweaksPayload.CHANNEL.toString());
         metadata.putInt("version", PROTOCOL_VERSION);
         metadata.putString("servux", ServuxProtocol.SERVUX_STRING);
+        metadata.putBoolean("stackingShulkers", false);
+        metadata.putInt("stackingShulkersMax", 64);
 
-        EntityDataPayload payload = new EntityDataPayload(EntityDataPayloadType.PACKET_S2C_METADATA);
+        TweaksPayload payload = new TweaksPayload(TweaksPayloadType.PACKET_S2C_METADATA);
         payload.nbt.merge(metadata);
         sendPacket(player, payload);
     }
@@ -89,7 +80,7 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
             BlockEntity be = player.level().getBlockEntity(pos);
             CompoundTag nbt = be != null ? be.saveWithFullMetadata(player.registryAccess()) : new CompoundTag();
 
-            EntityDataPayload payload = new EntityDataPayload(EntityDataPayloadType.PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE);
+            TweaksPayload payload = new TweaksPayload(TweaksPayloadType.PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE);
             payload.pos = pos.immutable();
             payload.nbt.merge(nbt);
             sendPacket(player, payload);
@@ -99,27 +90,30 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
     public static void onEntityRequest(ServerPlayer player, int entityId) {
         Bukkit.getGlobalRegionScheduler().run(MinecraftInternalPlugin.INSTANCE, (task) -> {
             Entity entity = player.level().getEntity(entityId);
+            if (entity == null) {
+                return;
+            }
             CompoundTag nbt = TagUtil.saveEntityWithoutId(entity);
 
-            EntityDataPayload payload = new EntityDataPayload(EntityDataPayloadType.PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE);
+            TweaksPayload payload = new TweaksPayload(TweaksPayloadType.PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE);
             payload.entityId = entityId;
             payload.nbt.merge(nbt);
             sendPacket(player, payload);
         });
     }
 
-    public static void sendPacket(ServerPlayer player, EntityDataPayload payload) {
-        if (payload.packetType == EntityDataPayloadType.PACKET_S2C_NBT_RESPONSE_START) {
+    public static void sendPacket(ServerPlayer player, TweaksPayload payload) {
+        if (payload.packetType == TweaksPayloadType.PACKET_S2C_NBT_RESPONSE_START) {
             FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
             buffer.writeNbt(payload.nbt);
-            PacketSplitter.send(ServuxEntityDataProtocol::sendWithSplitter, buffer, player);
+            PacketSplitter.send(ServuxTweaksProtocol::sendWithSplitter, buffer, player);
         } else {
             ProtocolUtils.sendPayloadPacket(player, payload);
         }
     }
 
     private static void sendWithSplitter(ServerPlayer player, FriendlyByteBuf buf) {
-        EntityDataPayload payload = new EntityDataPayload(EntityDataPayloadType.PACKET_S2C_NBT_RESPONSE_DATA);
+        TweaksPayload payload = new TweaksPayload(TweaksPayloadType.PACKET_S2C_NBT_RESPONSE_DATA);
         payload.buffer = buf;
         payload.nbt = new CompoundTag();
         sendPacket(player, payload);
@@ -127,10 +121,10 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
 
     @Override
     public boolean isActive() {
-        return LeavesConfig.protocol.servux.entityProtocol;
+        return LeavesConfig.protocol.servux.tweaksProtocol;
     }
 
-    public enum EntityDataPayloadType {
+    public enum TweaksPayloadType {
         PACKET_S2C_METADATA(1),
         PACKET_C2S_METADATA_REQUEST(2),
         PACKET_C2S_BLOCK_ENTITY_REQUEST(3),
@@ -138,36 +132,34 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
         PACKET_S2C_BLOCK_NBT_RESPONSE_SIMPLE(5),
         PACKET_S2C_ENTITY_NBT_RESPONSE_SIMPLE(6),
         PACKET_C2S_UNREGISTER_REPLY(7),
-        // For Packet Splitter (Oversize Packets, S2C)
         PACKET_S2C_NBT_RESPONSE_START(10),
         PACKET_S2C_NBT_RESPONSE_DATA(11),
-        // For Packet Splitter (Oversize Packets, C2S)
         PACKET_C2S_NBT_RESPONSE_START(12),
         PACKET_C2S_NBT_RESPONSE_DATA(13);
 
         public final int type;
 
-        EntityDataPayloadType(int type) {
+        TweaksPayloadType(int type) {
             this.type = type;
-            EntityDataPayloadType.Helper.ID_TO_TYPE.put(type, this);
+            TweaksPayloadType.Helper.ID_TO_TYPE.put(type, this);
         }
 
-        public static EntityDataPayloadType fromId(int id) {
-            return EntityDataPayloadType.Helper.ID_TO_TYPE.get(id);
+        public static TweaksPayloadType fromId(int id) {
+            return TweaksPayloadType.Helper.ID_TO_TYPE.get(id);
         }
 
         private static final class Helper {
-            static Map<Integer, EntityDataPayloadType> ID_TO_TYPE = new HashMap<>();
+            static Map<Integer, TweaksPayloadType> ID_TO_TYPE = new HashMap<>();
         }
     }
 
-    public static class EntityDataPayload implements LeavesCustomPayload {
+    public static class TweaksPayload implements LeavesCustomPayload {
 
         @ID
-        public static final Identifier CHANNEL = ServuxProtocol.id("entity_data");
+        public static final Identifier CHANNEL = ServuxProtocol.id("tweaks");
 
         @Codec
-        public static final StreamCodec<FriendlyByteBuf, EntityDataPayload> CODEC = StreamCodec.of(
+        public static final StreamCodec<FriendlyByteBuf, TweaksPayload> CODEC = StreamCodec.of(
             (buf, payload) -> {
                 buf.writeVarInt(payload.packetType.type);
                 switch (payload.packetType) {
@@ -186,12 +178,12 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
                 }
             },
             buf -> {
-                EntityDataPayloadType type = EntityDataPayloadType.fromId(buf.readVarInt());
+                TweaksPayloadType type = TweaksPayloadType.fromId(buf.readVarInt());
                 if (type == null) {
                     ServuxProtocol.skipRemaining(buf);
                     throw new IllegalStateException("invalid packet type received");
                 }
-                EntityDataPayload payload = new EntityDataPayload(type);
+                TweaksPayload payload = new TweaksPayload(type);
                 switch (type) {
                     case PACKET_C2S_BLOCK_ENTITY_REQUEST -> payload.pos = buf.readBlockPos().immutable();
                     case PACKET_C2S_ENTITY_REQUEST -> payload.entityId = buf.readVarInt();
@@ -214,27 +206,17 @@ public class ServuxEntityDataProtocol implements LeavesProtocol {
             }
         );
 
-        private final EntityDataPayloadType packetType;
-        private final int transactionId;
+        private final TweaksPayloadType packetType;
         private int entityId;
         private BlockPos pos;
         private CompoundTag nbt;
         private FriendlyByteBuf buffer;
 
-        private EntityDataPayload(EntityDataPayloadType type) {
+        private TweaksPayload(TweaksPayloadType type) {
             this.packetType = type;
-            this.transactionId = -1;
             this.entityId = -1;
             this.pos = BlockPos.ZERO;
             this.nbt = new CompoundTag();
-            this.clearPacket();
-        }
-
-        private void clearPacket() {
-            if (this.buffer != null) {
-                this.buffer.clear();
-                this.buffer = new FriendlyByteBuf(Unpooled.buffer());
-            }
         }
     }
 }
