@@ -1,0 +1,200 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:19:58 +0000
+Subject: [PATCH] Fix Minecraft 26.2 API compatibility
+
+Update Leaves NMS hooks for EntityTypes, ColorCollection-era
+block entity types, login packet fields, and field visibility
+needed by fakeplayer/replay after the 26.2 Paper rebase.
+
+diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
+index 5ccd3f870a024fced39330b4bebc0454e4cba42c..da306a1fe7de194af5c85281c5b9fbeaeed1870d 100644
+--- a/net/minecraft/server/level/ServerPlayer.java
++++ b/net/minecraft/server/level/ServerPlayer.java
+@@ -251,7 +251,7 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+     private boolean canChatColor = true;
+     private long lastActionTime = Util.getMillis();
+     private @Nullable Entity camera;
+-    private boolean isChangingDimension;
++    protected boolean isChangingDimension; // Leaves - fakeplayer access
+     public boolean seenCredits = false;
+     protected ServerRecipeBook recipeBook; // Leaves - not final and private -> protected
+     private @Nullable Vec3 levitationStartPos;
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index febfbeeb3b947f4e004d9eba5ccd1e775893dfcf..708c0e66fd42291e1a7620badb6434ba2a6984e5 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -164,7 +164,6 @@ public abstract class PlayerList {
+         ServerLevel worldserver1 = worldserver;
+ 
+         player.setServerLevel(worldserver1);
+-        player.spawnIn(worldserver1);
+         player.gameMode.setLevel(player.level());
+ 
+         LevelData worlddata = worldserver1.getLevelData();
+@@ -175,7 +174,7 @@ public abstract class PlayerList {
+         boolean flag1 = gamerules.get(GameRules.REDUCED_DEBUG_INFO);
+         boolean flag2 = gamerules.get(GameRules.LIMITED_CRAFTING);
+ 
+-        playerconnection.send(new ClientboundLoginPacket(player.getId(), worlddata.isHardcore(), this.server.levelKeys(), this.getMaxPlayers(), io.papermc.paper.FeatureHooks.getViewDistance(worldserver1), io.papermc.paper.FeatureHooks.getSimulationDistance(worldserver1), flag1, !flag, flag2, player.createCommonSpawnInfo(worldserver1), this.server.enforceSecureProfile()));
++        playerconnection.send(new ClientboundLoginPacket(player.getId(), worlddata.isHardcore(), this.server.levelKeys(), this.getMaxPlayers(), io.papermc.paper.FeatureHooks.getViewDistance(worldserver1), io.papermc.paper.FeatureHooks.getSimulationDistance(worldserver1), flag1, !flag, flag2, player.createCommonSpawnInfo(worldserver1), this.server.usesAuthentication(), this.server.enforceSecureProfile()));
+         player.getBukkitEntity().sendSupportedChannels(); // CraftBukkit
+         playerconnection.send(new ClientboundChangeDifficultyPacket(worlddata.getDifficulty(), worlddata.isDifficultyLocked()));
+         playerconnection.send(new ClientboundPlayerAbilitiesPacket(player.getAbilities()));
+@@ -247,7 +246,7 @@ public abstract class PlayerList {
+ 
+         player.sentListPacket = true;
+         player.suppressTrackerForLogin = false;
+-        ((ServerLevel)player.level()).getChunkSource().chunkMap.addEntity(player);
++        ((ServerLevel)player.level()).getChunkSource().addEntity(player);
+ 
+         this.sendLevelInfo(player, worldserver1);
+ 
+@@ -592,7 +591,7 @@ public abstract class PlayerList {
+ 
+         worldserver.removePlayerImmediately(entityplayer, Entity.RemovalReason.UNLOADED_WITH_PLAYER);
+         entityplayer.retireScheduler();
+-        entityplayer.getAdvancements().stopListening();
++        entityplayer.getAdvancements().clearTriggers();
+         this.players.remove(entityplayer);
+         // Leaves - guard name removal so a photographer sharing a real player's name won't evict the real player's mapping
+         final String nameKey = entityplayer.getScoreboardName().toLowerCase(java.util.Locale.ROOT);
+diff --git a/net/minecraft/world/entity/monster/Creeper.java b/net/minecraft/world/entity/monster/Creeper.java
+index 4a90294f8d8447bb2f2cef7572119274a1a2c62e..3d37943f1a1e09894573adde705f31b26151c871 100644
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -54,7 +54,7 @@ public class Creeper extends Monster {
+     public int swell;
+     public int maxSwell = 30;
+     public int explosionRadius = 3;
+-    private boolean droppedSkulls;
++    public boolean droppedSkulls; // Leaves - spider jockeys drop gapples
+     public @Nullable Entity entityIgniter; // CraftBukkit
+ 
+     public Creeper(final EntityType<? extends Creeper> type, final Level level) {
+diff --git a/net/minecraft/world/entity/monster/skeleton/Skeleton.java b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
+index 56877badfae4caf2bef9b2dc73dcec35e2567e84..3210a87de4b510ecd1c9b7f28ed7ef68d7ca0eba 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Skeleton.java
++++ b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
+@@ -146,7 +146,7 @@ public class Skeleton extends AbstractSkeleton {
+     protected void dropFromLootTable(net.minecraft.server.level.ServerLevel level, DamageSource source, boolean playerKilled) {
+         super.dropFromLootTable(level, source, playerKilled);
+         if (org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples > 0.0D) {
+-            if (this.getRootVehicle().getType() == EntityType.SPIDER && this.random.nextDouble() < org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples) {
++            if (this.getRootVehicle().getType() == EntityTypes.SPIDER && this.random.nextDouble() < org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples) {
+                 this.spawnAtLocation(level, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ENCHANTED_GOLDEN_APPLE));
+             }
+         }
+diff --git a/net/minecraft/world/entity/monster/spider/Spider.java b/net/minecraft/world/entity/monster/spider/Spider.java
+index aca3c3dc3ed947b0fb3a41ccac686646041583b5..609a5aed97f098e221d5ccfc1304cd726e343aa1 100644
+--- a/net/minecraft/world/entity/monster/spider/Spider.java
++++ b/net/minecraft/world/entity/monster/spider/Spider.java
+@@ -147,7 +147,7 @@ public class Spider extends Monster {
+     protected void dropFromLootTable(net.minecraft.server.level.ServerLevel level, net.minecraft.world.damagesource.DamageSource source, boolean playerKilled) {
+         super.dropFromLootTable(level, source, playerKilled);
+         if (org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples > 0.0D) {
+-            if (this.hasPassenger(entity -> entity.getType() == EntityType.SKELETON) && this.random.nextDouble() < org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples) {
++            if (this.hasPassenger(entity -> entity.getType() == EntityTypes.SKELETON) && this.random.nextDouble() < org.leavesmc.leaves.LeavesConfig.modify.spiderJockeysDropGapples) {
+                 this.spawnAtLocation(level, new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.ENCHANTED_GOLDEN_APPLE));
+             }
+         }
+diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
+index d5ed4718268d7e07ca91a5807cd1967997037e88..fcc0de15d42e6571d0cea0545b52fb0cf4144f03 100644
+--- a/net/minecraft/world/entity/monster/zombie/Zombie.java
++++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
+@@ -333,7 +333,7 @@ public class Zombie extends Monster {
+             int x = Mth.floor(this.getX());
+             int y = Mth.floor(this.getY());
+             int z = Mth.floor(this.getZ());
+-                EntityType<? extends Zombie> type = org.leavesmc.leaves.LeavesConfig.modify.oldMC.oldZombieReinforcement ? EntityType.ZOMBIE : this.getType(); // Leaves end - old zombie reinforcement
++                EntityType<? extends Zombie> type = org.leavesmc.leaves.LeavesConfig.modify.oldMC.oldZombieReinforcement ? EntityTypes.ZOMBIE : this.getType(); // Leaves end - old zombie reinforcement
+             Zombie reinforcement = type.create(level, EntitySpawnReason.REINFORCEMENT);
+             if (reinforcement == null) {
+                 return true;
+diff --git a/net/minecraft/world/entity/player/Inventory.java b/net/minecraft/world/entity/player/Inventory.java
+index 47e1a18cc7fee51971a113fa4d6f4f8f2e45d736..4b86bc6e8f3a2af76bd7c71e74d9f6aa0472d7e4 100644
+--- a/net/minecraft/world/entity/player/Inventory.java
++++ b/net/minecraft/world/entity/player/Inventory.java
+@@ -179,7 +179,7 @@ public class Inventory implements Container, Nameable {
+         int remains = itemStack.getCount();
+ 
+         // Leaves start - vanilla creative pickup behavior
+-        if (player.hasInfiniteMaterials()) {
++        if (player != null && player.hasInfiniteMaterials()) {
+             return remains;
+         }
+         // Leaves end - vanilla creative pickup behavior
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 272de0ee89b8a21f6024c93710c260904a4f4e94..768d01f29863dcb4064c2fd44ec4d5e216727772 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -156,7 +156,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+     protected FoodData foodData = new FoodData();
+     protected int jumpTriggerTime;
+     public int takeXpDelay;
+-    private int sleepCounter = 0;
++    protected int sleepCounter = 0; // Leaves - fakeplayer access
+     protected boolean wasUnderwater;
+     private final Abilities abilities = new Abilities();
+     public int experienceLevel = 0;
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
+index df10a76f8f43a0a483d4e59c55d5d78a723fb502..fae12028cded90eb69813b852b8bfd36f4b1ea42 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/Snowball.java
+@@ -60,7 +60,7 @@ public class Snowball extends ThrowableItemProjectile {
+         // Leaves start - make snowball can knockback player
+         if (org.leavesmc.leaves.LeavesConfig.modify.snowballAndEggCanKnockback && entity instanceof net.minecraft.server.level.ServerPlayer player) {
+             player.hurt(this.damageSources().thrown(this, this.getOwner()), 0.0000001F);
+-            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
++            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this.damageSources().thrown(this, this.getOwner()), 0.0F, this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
+         }
+         // Leaves end - make snowball can knockback player
+     }
+diff --git a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
+index 77c0d952253ef50a404445630dda56a93befd89e..5ec6019c2ad51763a6e25422a0944e5b24e5a1fc 100644
+--- a/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
++++ b/net/minecraft/world/entity/projectile/throwableitemprojectile/ThrownEgg.java
+@@ -64,7 +64,7 @@ public class ThrownEgg extends ThrowableItemProjectile {
+         // Leaves start - make egg can knockback player
+         if (org.leavesmc.leaves.LeavesConfig.modify.snowballAndEggCanKnockback && hitResult.getEntity() instanceof net.minecraft.server.level.ServerPlayer player) {
+             player.hurt(this.damageSources().thrown(this, this.getOwner()), 0.0000001F);
+-            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
++            player.knockback(0.4000000059604645D, this.getX() - player.getX(), this.getZ() - player.getZ(), this.damageSources().thrown(this, this.getOwner()), 0.0F, this, io.papermc.paper.event.entity.EntityKnockbackEvent.Cause.DAMAGE);
+         }
+         // Leaves end - make egg can knockback player
+     }
+diff --git a/net/minecraft/world/entity/raid/Raid.java b/net/minecraft/world/entity/raid/Raid.java
+index e297062af0a34be04d8f054baa3824744f5c55e2..90d826e2bb1b077d87bc9f81d77e4e66f824ca9c 100644
+--- a/net/minecraft/world/entity/raid/Raid.java
++++ b/net/minecraft/world/entity/raid/Raid.java
+@@ -898,7 +898,7 @@ public class Raid {
+     private BlockPos getRavagerSpawnLocation(ServerLevel serverWorld, int proximity, int tries) {
+         int i = proximity == 0 ? 2 : 2 - proximity;
+         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+-        net.minecraft.world.entity.SpawnPlacementType spawnLocation = net.minecraft.world.entity.SpawnPlacements.getPlacementType(EntityType.RAVAGER);
++        net.minecraft.world.entity.SpawnPlacementType spawnLocation = net.minecraft.world.entity.SpawnPlacements.getPlacementType(EntityTypes.RAVAGER);
+         for (int j = 0; j < tries; j++) {
+             float f = serverWorld.getRandom().nextFloat() * (float) (Math.PI * 2);
+             int k = this.center.getX() + Mth.floor(Mth.cos(f) * 32.0F * (float) i + serverWorld.getRandom().nextInt(5));
+@@ -910,7 +910,7 @@ public class Raid {
+             }
+             if (serverWorld.hasChunksAt(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10)
+                 && serverWorld.isPositionEntityTicking(mutable)
+-                && (spawnLocation.isSpawnPositionOk(serverWorld, mutable, EntityType.RAVAGER)
++                && (spawnLocation.isSpawnPositionOk(serverWorld, mutable, EntityTypes.RAVAGER)
+                     || serverWorld.getBlockState(mutable.below()).is(net.minecraft.world.level.block.Blocks.SNOW)
+                     && serverWorld.getBlockState(mutable).isAir())
+             ) {
+diff --git a/net/minecraft/world/level/block/SculkShriekerBlock.java b/net/minecraft/world/level/block/SculkShriekerBlock.java
+index 685e4e9ed3a428f6c120cdfce6460a09d23aa250..d2cb8e8efeb49a63f9d65c879ad48933d1a1301c 100644
+--- a/net/minecraft/world/level/block/SculkShriekerBlock.java
++++ b/net/minecraft/world/level/block/SculkShriekerBlock.java
+@@ -73,7 +73,7 @@ public class SculkShriekerBlock extends BaseEntityBlock implements SimpleWaterlo
+     @Override
+     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+         if (level instanceof ServerLevel serverLevel && state.getValue(SHRIEKING) && !state.is(newState.getBlock())) {
+-            serverLevel.getBlockEntity(pos, BlockEntityType.SCULK_SHRIEKER).ifPresent(sculkShrieker -> sculkShrieker.tryRespond(serverLevel));
++            serverLevel.getBlockEntity(pos, BlockEntityTypes.SCULK_SHRIEKER).ifPresent(sculkShrieker -> sculkShrieker.tryRespond(serverLevel));
+         }
+         super.onRemove(state, level, pos, newState, movedByPiston);
+     }

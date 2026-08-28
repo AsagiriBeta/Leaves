@@ -76,6 +76,7 @@ public class SyncmaticaProtocol {
             }
         } while (numRead != -1);
 
+        fis.close();
         return UUID.nameUUIDFromBytes(messageDigest.digest());
     }
 

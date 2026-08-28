@@ -15,7 +15,7 @@ Leaves
 ## How To (Server Admins)
 Leaves use the same leavesclip(paperclip fork) jar system that Paper uses.
 
-You can download the latest build (1.21.x) of Leaves by going [here](https://github.com/LeavesMC/Leaves/releases/latest)
+You can download the latest build (26.2) of Leaves by going [here](https://github.com/LeavesMC/Leaves/releases/latest)
 
 You can also [build it yourself](#building).
 
@@ -30,7 +30,7 @@ maven {
 }
 
 dependencies {
-    compileOnly("org.leavesmc.leaves:leaves-api:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("org.leavesmc.leaves:leaves-api:26.2-R0.1-SNAPSHOT")
 }
  ```
 
@@ -40,15 +40,15 @@ Each time you want to update your dependency, you must re-build Leaves.
 Leaves-Server:
 ```kotlin
 dependencies {
-    compileOnly("org.leavesmc.leaves:leaves:1.21.10-R0.1-SNAPSHOT")
+    compileOnly("org.leavesmc.leaves:leaves:26.2-R0.1-SNAPSHOT")
 }
  ```
 
 ## Building
 
-You need JDK 21 and good Internet conditions
+You need JDK 25 and good Internet conditions
 
-Clone this repo, run `./gradlew applyAllPatches`, then run `./gradlew createMojmapLeavesclipJar` in your terminal.  
+Clone this repo, run `./gradlew applyAllPatches`, then run `./gradlew createLeavesclipJar` in your terminal.  
 
 You can find the jars in the `leaves-server/build/libs` directory.
 

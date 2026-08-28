@@ -35,7 +35,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RegistryLayer;
 import net.minecraft.server.packs.repository.KnownPack;
 import net.minecraft.tags.TagNetworkSerialization;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.flag.FeatureFlags;
 import org.jetbrains.annotations.NotNull;
@@ -96,7 +96,7 @@ public class Recorder extends Connection {
         metaData.mcversion = SharedConstants.getCurrentVersion().name();
 
         // TODO start event
-        this.savePacket(new ClientboundLoginFinishedPacket(photographer.getGameProfile()), ConnectionProtocol.LOGIN);
+        this.savePacket(new ClientboundLoginFinishedPacket(photographer.getGameProfile(), MinecraftServer.getServer().getConnection().getSessionId()), ConnectionProtocol.LOGIN);
         this.startConfiguration();
 
         savePacket(ClientboundPlayerPositionPacket.of(photographer.getId(), PositionMoveRotation.of(photographer), Collections.emptySet()));
@@ -187,7 +187,7 @@ public class Recorder extends Connection {
                 return;
             }
             case ClientboundAddEntityPacket packet1 -> {
-                if (packet1.getType() == EntityType.PLAYER) {
+                if (packet1.getType() == EntityTypes.PLAYER) {
                     metaData.players.add(packet1.getUUID());
                     saveMetadata();
                 }
@@ -202,8 +202,19 @@ public class Recorder extends Connection {
             }
         }
 
-        if (recorderOption.forceDayTime != -1 && packet instanceof ClientboundSetTimePacket packet1) {
-            packet = new ClientboundSetTimePacket(packet1.dayTime(), recorderOption.forceDayTime, false);
+        if (recorderOption.forceDayTime != -1 && packet instanceof ClientboundSetTimePacket(long gameTime, java.util.Map<net.minecraft.core.Holder<net.minecraft.world.clock.WorldClock>, net.minecraft.world.clock.ClockNetworkState> clockUpdates)) {
+            // Leaves - freeze each world clock at forceDayTime within its current day, keeping the day count (mirrors ServerPlayer#getDefaultClockTime: floor to day start + offset)
+            packet = new ClientboundSetTimePacket(
+                gameTime,
+                net.minecraft.util.Util.mapValues(
+                    clockUpdates,
+                    state -> new net.minecraft.world.clock.ClockNetworkState(
+                        state.totalTicks() - (state.totalTicks() % net.minecraft.SharedConstants.TICKS_PER_GAME_DAY) + recorderOption.forceDayTime,
+                        0.0F,
+                        0.0F
+                    )
+                )
+            );
         }
 
         if (recorderOption.forceWeather != null && packet instanceof ClientboundGameEventPacket packet1) {

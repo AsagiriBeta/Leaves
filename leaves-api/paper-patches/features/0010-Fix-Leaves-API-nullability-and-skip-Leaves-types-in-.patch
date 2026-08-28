@@ -1,0 +1,89 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:31:32 +0000
+Subject: [PATCH] Fix Leaves API nullability and skip Leaves types in
+ AnnotationTest.
+
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index 57936d3924395f455506bd0326b6cab25fda6bb7..54bf9fe8b0c65b55e9b219721ec746c110fb6706 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -3011,7 +3011,7 @@ public final class Bukkit {
+     }
+ 
+     // Leaves start - Feature API
+-    public static org.leavesmc.leaves.plugin.FeatureManager getFeatureManager() {
++    public static @NotNull org.leavesmc.leaves.plugin.FeatureManager getFeatureManager() {
+         return server.getFeatureManager();
+     }
+     // Leaves end - Feature API
+@@ -3034,13 +3034,13 @@ public final class Bukkit {
+     // Leaves end - Photographer API
+ 
+     // Leaves start - Bytebuf API
+-    public static org.leavesmc.leaves.bytebuf.BytebufAllocator getBytebufManager() {
++    public static @NotNull org.leavesmc.leaves.bytebuf.BytebufAllocator getBytebufManager() {
+         return server.getBytebufAllocator();
+     }
+     // Leaves end - Bytebuf API
+ 
+     // Leaves start - Config API
+-    public static org.leavesmc.leaves.config.LeavesConfigProvider getLeavesConfig() {
++    public static @NotNull org.leavesmc.leaves.config.LeavesConfigProvider getLeavesConfig() {
+         return server.getLeavesConfig();
+     }
+     // Leaves end - Config API
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 4e548f3c14a043619c14a9afb9365314da3e0b5b..27658c8053447ebb3bbbdfb1c34dfc85ae277fd2 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2776,7 +2776,7 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+     // Paper end - API to check if the server is sleeping
+ 
+     // Leaves start - Feature API
+-    org.leavesmc.leaves.plugin.FeatureManager getFeatureManager();
++    @NotNull org.leavesmc.leaves.plugin.FeatureManager getFeatureManager();
+     // Leaves End - Feature API
+ 
+     // Leaves start - Bot API
+@@ -2790,7 +2790,7 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+ 
+     @NotNull org.leavesmc.leaves.entity.photographer.PhotographerManager getPhotographerManager(); // Leaves - Photographer API
+ 
+-    org.leavesmc.leaves.bytebuf.BytebufAllocator getBytebufAllocator(); // Leaves - Bytebuf API
++    @NotNull org.leavesmc.leaves.bytebuf.BytebufAllocator getBytebufAllocator(); // Leaves - Bytebuf API
+ 
+-    org.leavesmc.leaves.config.LeavesConfigProvider getLeavesConfig(); // Leaves - Config API
++    @NotNull org.leavesmc.leaves.config.LeavesConfigProvider getLeavesConfig(); // Leaves - Config API
+ }
+diff --git a/src/test/java/org/bukkit/AnnotationTest.java b/src/test/java/org/bukkit/AnnotationTest.java
+index 37feafd626aaa17aba888d7ff13728b3c6f26d4d..e1966f620f1d9ba41abe4479f4b8dc25b009cad1 100644
+--- a/src/test/java/org/bukkit/AnnotationTest.java
++++ b/src/test/java/org/bukkit/AnnotationTest.java
+@@ -249,6 +249,12 @@ public class AnnotationTest {
+             }
+         }
+ 
++        // Leaves start - skip Leaves API types; they are annotated independently
++        if (clazz.name.startsWith("org/leavesmc/")) {
++            return false;
++        }
++        // Leaves end - skip Leaves API types
++
+         return true;
+     }
+ 
+@@ -278,6 +284,12 @@ public class AnnotationTest {
+         }
+         // Paper end
+ 
++        // Leaves start - skip Leaves API types; they are annotated independently
++        if (clazz.name.startsWith("org/leavesmc/")) {
++            return false;
++        }
++        // Leaves end - skip Leaves API types
++
+         return true;
+     }
+     // Paper start

@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:38 +0000
+Subject: [PATCH] Fix EntityPortalExitEvent logic
+
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 9d286d966359857567780f1b684bc718eda96a71..c17390a07b0c15955da470f8a34adab62cd6b378 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -4168,19 +4168,21 @@ public abstract class Entity
+                 );
+                 event.callEvent();
+ 
++                // Leaves start - fix
+                 // Only change the target if actually needed, since we reset relative flags
+-                if (event.isCancelled() || !to.equals(event.getTo()) || !after.equals(event.getAfter())) {
+-                    if (event.isCancelled() || event.getTo() == null) {
+-                        org.bukkit.World toWorld = to.getWorld();
+-                        to = event.getFrom().clone();
+-                        to.setWorld(toWorld); // cancelling doesn't cancel the teleport just the position/velocity (old quirk)
+-                        velocity = org.bukkit.craftbukkit.util.CraftVector.toVec3(event.getBefore());
+-                    } else {
+-                        to = event.getTo().clone();
++                if (event.isCancelled() || (!to.equals(event.getTo()) || !after.equals(event.getAfter()))) {
++                    if (!event.isCancelled()) {
++                        if (event.getTo() != null) {
++                            to = event.getTo().clone();
++                        }
+                         velocity = org.bukkit.craftbukkit.util.CraftVector.toVec3(event.getAfter());
++                    } else {
++                        to = event.getFrom().clone();
++                        velocity = Vec3.ZERO;
+                     }
+                     transition = transition.withChangedLocation(to).withRelatives(Set.of()).withVelocity(velocity);
+                 }
++                // Leaves end - fix
+             }
+             if (this.isRemoved()) {
+                 return null;

@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:01:53 +0000
+Subject: [PATCH] Configurable item damage check
+
+
+diff --git a/net/minecraft/world/item/ItemStack.java b/net/minecraft/world/item/ItemStack.java
+index d25378a3121cc6b04bfdb288013d1c2b41489c22..c0a121297b5f306bc6a042691f7dbed018f9c7ca 100644
+--- a/net/minecraft/world/item/ItemStack.java
++++ b/net/minecraft/world/item/ItemStack.java
+@@ -568,11 +568,11 @@ public final class ItemStack implements DataComponentHolder, ItemInstance {
+     }
+ 
+     public int getDamageValue() {
+-        return Mth.clamp(this.getOrDefault(DataComponents.DAMAGE, 0), 0, this.getMaxDamage());
++        return org.leavesmc.leaves.LeavesConfig.modify.oldMC.disableItemDamageCheck ? this.getOrDefault(DataComponents.DAMAGE, 0) : Mth.clamp(this.getOrDefault(DataComponents.DAMAGE, 0), 0, this.getMaxDamage()); // Leaves - disable check
+     }
+ 
+     public void setDamageValue(final int value) {
+-        this.set(DataComponents.DAMAGE, Mth.clamp(value, 0, this.getMaxDamage()));
++        this.set(DataComponents.DAMAGE, org.leavesmc.leaves.LeavesConfig.modify.oldMC.disableItemDamageCheck ? value : Mth.clamp(value, 0, this.getMaxDamage())); // Leaves - disable check
+     }
+ 
+     public int getMaxDamage() {

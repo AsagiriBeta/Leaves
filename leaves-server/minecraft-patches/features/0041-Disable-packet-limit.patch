@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:57:01 +0000
+Subject: [PATCH] Disable packet limit
+
+
+diff --git a/net/minecraft/network/Connection.java b/net/minecraft/network/Connection.java
+index acd2e73718210d61251ae1847013c9a5a7125498..4857bd69a7ded6273c56a18bb4d0f2050f8f9f39 100644
+--- a/net/minecraft/network/Connection.java
++++ b/net/minecraft/network/Connection.java
+@@ -222,8 +222,8 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+             if (this.stopReadingPackets) {
+                 return;
+             }
+-            if (this.allPacketCounts != null ||
+-                io.papermc.paper.configuration.GlobalConfiguration.get().packetLimiter.overrides.containsKey(packet.getClass())) {
++                if (!org.leavesmc.leaves.LeavesConfig.modify.disablePacketLimit && (this.allPacketCounts != null || // Leaves - can disable
++                    io.papermc.paper.configuration.GlobalConfiguration.get().packetLimiter.overrides.containsKey(packet.getClass()))) { // Leaves - can disable
+                 long time = System.nanoTime();
+                 synchronized (PACKET_LIMIT_LOCK) {
+                     if (this.allPacketCounts != null) {
+diff --git a/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 760a6cc7ec320d25ad7ff1d185820320e473d127..ac88bc0b1cb9d129032d1dc92c19ac4c8f466c6d 100644
+--- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -844,7 +844,7 @@ public class ServerGamePacketListenerImpl
+     public void handleCustomCommandSuggestions(final ServerboundCommandSuggestionPacket packet) {
+         // PacketUtils.ensureRunningOnSameThread(packet, this, this.player.level()); // Paper - AsyncTabCompleteEvent; run this async
+         // CraftBukkit start
+-        if (!this.tabSpamThrottler.isIncrementAndUnderThreshold() && !this.server.getPlayerList().isOp(this.player.nameAndId()) && !this.server.isSingleplayerOwner(this.player.nameAndId())) { // Paper - configurable tab spam limits
++        if (!org.leavesmc.leaves.LeavesConfig.modify.disablePacketLimit && !this.tabSpamThrottler.isIncrementAndUnderThreshold() && !this.server.getPlayerList().isOp(this.player.nameAndId()) && !this.server.isSingleplayerOwner(this.player.nameAndId())) { // Paper - configurable tab spam limits // Leaves - can disable
+             this.disconnectAsync(Component.translatable("disconnect.spam"), org.bukkit.event.player.PlayerKickEvent.Cause.SPAM); // Paper - Kick event cause // Paper - add proper async disconnect
+             return;
+         }
+@@ -2072,6 +2072,7 @@ public class ServerGamePacketListenerImpl
+     private long lastLimitedPacket = -1;
+ 
+     private boolean checkLimit(long timestamp) {
++        if (org.leavesmc.leaves.LeavesConfig.modify.disablePacketLimit) return true; // Leaves - disable packet limit
+         if (!io.papermc.paper.configuration.GlobalConfiguration.get().spamLimiter.incomingPacketThreshold.enabled()) {
+             return true;
+         }
+@@ -2627,6 +2628,7 @@ public class ServerGamePacketListenerImpl
+ 
+     // Spigot start - spam exclusions
+     private void detectRateSpam(final TickThrottler throttler, final String message) {
++        if (org.leavesmc.leaves.LeavesConfig.modify.disablePacketLimit) return; // Leaves - disable packet limit
+         if (org.spigotmc.SpigotConfig.enableSpamExclusions) {
+             for (String exclude : org.spigotmc.SpigotConfig.spamExclusions) {
+                 if (exclude != null && message.startsWith(exclude)) {
+@@ -3386,7 +3388,7 @@ public class ServerGamePacketListenerImpl
+     @Override
+     public void handlePlaceRecipe(final ServerboundPlaceRecipePacket packet) {
+         // Paper start - auto recipe limit
+-        if (!org.bukkit.Bukkit.isPrimaryThread()) {
++        if (!org.leavesmc.leaves.LeavesConfig.modify.disablePacketLimit && !org.bukkit.Bukkit.isPrimaryThread()) { // Leaves - can disable
+             if (!this.recipeSpamPackets.isIncrementAndUnderThreshold()) {
+                 this.disconnectAsync(net.minecraft.network.chat.Component.translatable("disconnect.spam"), org.bukkit.event.player.PlayerKickEvent.Cause.SPAM); // Paper - kick event cause // Paper - add proper async disconnect
+                 return;

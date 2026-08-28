@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:26 +0000
+Subject: [PATCH] Skip entity move if movement is zero
+
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index 426bcbc4e23f67c75d88eeacb4b8db457b19bc15..a6a3b425df9a5a27b290a04254aa8fe4a400198b 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -280,6 +280,7 @@ public abstract class Entity
+     public float yRotO;
+     public float xRotO;
+     private AABB bb = INITIAL_AABB;
++    private boolean boundingBoxChanged = false; // Leaves - skip entity move if movement is zero
+     public boolean onGround;
+     public boolean horizontalCollision;
+     public boolean verticalCollision;
+@@ -1138,6 +1139,13 @@ public abstract class Entity
+     // Paper end - detailed watchdog information
+ 
+     public void move(final MoverType moverType, Vec3 delta) {
++        // Leaves start - skip entity move if movement is zero
++        if (org.leavesmc.leaves.LeavesConfig.performance.skipEntityMoveIfMovementIsZero) {
++            if (!this.boundingBoxChanged && delta.equals(Vec3.ZERO)) {
++                return;
++            }
++        }
++        // Leaves end - skip entity move if movement is zero
+         final Vec3 originalMovement = delta; // Paper - Expose pre-collision velocity
+         // Paper start - detailed watchdog information
+         ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
+@@ -4621,6 +4629,7 @@ public abstract class Entity
+     }
+ 
+     public final void setBoundingBox(final AABB bb) {
++        if (!this.bb.equals(bb)) this.boundingBoxChanged = true; // Leaves - skip entity move if movement is zero
+         // CraftBukkit start - block invalid bounding boxes
+         double minX = bb.minX,
+                 minY = bb.minY,

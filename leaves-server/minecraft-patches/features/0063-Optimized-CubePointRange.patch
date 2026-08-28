@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:26 +0000
+Subject: [PATCH] Optimized CubePointRange
+
+
+diff --git a/net/minecraft/world/phys/shapes/CubePointRange.java b/net/minecraft/world/phys/shapes/CubePointRange.java
+index 72bb3bb29f2a1b06371589ed9bfea85de8046d50..99dcd631bd61b14688e75c7ff2b0e6b2b348cce2 100644
+--- a/net/minecraft/world/phys/shapes/CubePointRange.java
++++ b/net/minecraft/world/phys/shapes/CubePointRange.java
+@@ -3,7 +3,9 @@ package net.minecraft.world.phys.shapes;
+ import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
+ 
+ public class CubePointRange extends AbstractDoubleList {
++    private final int size; // Leaves - replace parts by size in CubePointRange
+     private final int parts;
++    private final double scale; // Leaves - replace division by multiplication in CubePointRange
+ 
+     public CubePointRange(final int parts) {
+         if (parts <= 0) {
+@@ -11,15 +13,23 @@ public class CubePointRange extends AbstractDoubleList {
+         }
+ 
+         this.parts = parts;
++        this.size = parts + 1;
++        this.scale = 1.0D / parts; // Leaves - replace division by multiplication in CubePointRange
+     }
+ 
+     @Override
+     public double getDouble(final int index) {
+-        return (double)index / this.parts;
++        // Leaves start - replace division by multiplication in CubePointRange
++        if (!org.leavesmc.leaves.LeavesConfig.performance.optimizedCubePointRange) {
++            return (double)index / (double)this.parts;
++        } else {
++            return index * this.scale;
++        }
++        // Leaves end - replace division by multiplication in CubePointRange
+     }
+ 
+     @Override
+     public int size() {
+-        return this.parts + 1;
++        return !org.leavesmc.leaves.LeavesConfig.performance.optimizedCubePointRange ? this.parts + 1 : size; // Leaves - replace parts by size in CubePointRange
+     }
+ }

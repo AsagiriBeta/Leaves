@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
+Subject: [PATCH] RNG Fishing
+
+
+diff --git a/net/minecraft/world/entity/projectile/FishingHook.java b/net/minecraft/world/entity/projectile/FishingHook.java
+index a01946040b12e60b265d34328675f331b6b2221f..db16a5ec3154ce92878124c4d99481bb58bef204 100644
+--- a/net/minecraft/world/entity/projectile/FishingHook.java
++++ b/net/minecraft/world/entity/projectile/FishingHook.java
+@@ -523,7 +523,7 @@ public class FishingHook extends Projectile {
+                     .withLuck(this.luck + owner.getLuck())
+                     .create(LootContextParamSets.FISHING);
+                 LootTable lootTable = this.level().getServer().reloadableRegistries().getLootTable(BuiltInLootTables.FISHING);
+-                List<ItemStack> items = lootTable.getRandomItems(params);
++                List<ItemStack> items = org.leavesmc.leaves.LeavesConfig.modify.oldMC.rngFishing ? lootTable.getRandomItems(params, this.random) : lootTable.getRandomItems(params); // Leaves - world random
+                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayer)owner, rod, this, items);
+ 
+                 for (ItemStack itemStack : items) {

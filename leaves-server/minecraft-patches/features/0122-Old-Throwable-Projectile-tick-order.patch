@@ -1,0 +1,37 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:01:53 +0000
+Subject: [PATCH] Old Throwable Projectile tick order
+
+
+diff --git a/net/minecraft/world/entity/projectile/ThrowableProjectile.java b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
+index 62a073c3cf878b8ef7592f5157b729b969e32107..2e1670fe0a9691cb6882984da8fb337e34f3b2ca 100644
+--- a/net/minecraft/world/entity/projectile/ThrowableProjectile.java
++++ b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
+@@ -45,6 +45,26 @@ public abstract class ThrowableProjectile extends Projectile {
+     @Override
+     public void tick() {
+         this.handleFirstTickBubbleColumn();
++        // Leaves start - old-throwable-projectile-tick-order // TODO - ?
++        if (org.leavesmc.leaves.LeavesConfig.modify.oldMC.oldThrowableProjectileTickOrder) {
++            super.tick();
++            HitResult hitResultOnMoveVector = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);
++            if (hitResultOnMoveVector.getType() != HitResult.Type.MISS) {
++                this.preHitTargetOrDeflectSelf(hitResultOnMoveVector); // CraftBukkit - projectile hit event
++            }
++
++            Vec3 vec3 = this.getDeltaMovement();
++            double d = this.getX() + vec3.x;
++            double e = this.getY() + vec3.y;
++            double f = this.getZ() + vec3.z;
++            this.updateRotation();
++            this.applyInertia();
++            this.applyGravity();
++            this.setPos(d, e, f);
++            this.applyEffectsFromBlocks();
++            return;
++        }
++        // Leaves end - old-throwable-projectile-tick-order
+         this.applyGravity();
+         this.applyInertia();
+         HitResult result = ProjectileUtil.getHitResultOnMoveVector(this, this::canHitEntity);

@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:00 +0000
+Subject: [PATCH] Fix falling block's block location
+
+
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index a6a3b425df9a5a27b290a04254aa8fe4a400198b..c243a8d72c27822e6f7d1f402b8ea6ab20dd4f47 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -5095,6 +5095,15 @@ public abstract class Entity
+             int fx = Mth.floor(x);
+             int fy = Mth.floor(y);
+             int fz = Mth.floor(z);
++
++            // Leaves start - fix falling block location
++            if (this instanceof net.minecraft.world.entity.item.FallingBlockEntity) {
++                if (y < 0.0 && y + 1e-10 > 0.0) {
++                    fy = 0;
++                }
++            }
++            // Leaves end - fix falling block location
++
+             if (fx != this.blockPosition.getX() || fy != this.blockPosition.getY() || fz != this.blockPosition.getZ()) {
+                 this.blockPosition = new BlockPos(fx, fy, fz);
+                 this.inBlockState = null;

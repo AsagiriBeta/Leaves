@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
+Subject: [PATCH] Leaves I18n support
+
+
+diff --git a/net/minecraft/locale/Language.java b/net/minecraft/locale/Language.java
+index 47cd33bce908744e64356b585853d6a8ecf82443..384cbe09769a348abfb5bb11a08b6ac0c9245d42 100644
+--- a/net/minecraft/locale/Language.java
++++ b/net/minecraft/locale/Language.java
+@@ -37,6 +37,7 @@ public abstract class Language {
+         Map<String, String> loadedData = new HashMap<>();
+         BiConsumer<String, String> output = loadedData::put;
+         parseTranslations(output, "/assets/minecraft/lang/en_us.json");
++        org.leavesmc.leaves.util.ServerI18nUtil.loadLeavesI18nDefault(output); // Leaves I18n
+         deprecatedInfo.applyToMap(loadedData);
+         final Map<String, String> storage = Map.copyOf(loadedData);
+         return new Language() {
+@@ -66,7 +67,7 @@ public abstract class Language {
+         };
+     }
+ 
+-    private static void parseTranslations(final BiConsumer<String, String> output, final String path) {
++    public static void parseTranslations(BiConsumer<String, String> output, String path) { // private -> public
+         try (InputStream stream = Language.class.getResourceAsStream(path)) {
+             loadFromJson(stream, output);
+         } catch (IOException | JsonParseException e) {
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index 32c158de80445b3ed39954cbe41d3b2fe50b8a37..44f9e63a5ec910610a2dafb4c5d72d1a5b8372be 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -166,6 +166,8 @@ public class Main {
+                 return;
+             }
+ 
++            org.leavesmc.leaves.util.ServerI18nUtil.preInit(); // Leaves I18n
++
+             // Paper start - Detect headless JRE
+             String awtException = io.papermc.paper.util.ServerEnvironment.awtDependencyCheck();
+             if (awtException != null) {
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index 09efa89ef112d3cc6f72c585d77f79fc31aa811a..3b091e311172e816045fe45c7e1071702ee67a9e 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -253,6 +253,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+         org.leavesmc.leaves.LeavesConfig.init((java.io.File) options.valueOf("leaves-settings")); // Leaves - Server Config
+         this.getBotList().loadResumeBotInfo(); // Leaves - load resident bot info
++        org.leavesmc.leaves.util.ServerI18nUtil.init(); // Leaves I18n
+ 
+         com.destroystokyo.paper.Metrics.PaperMetrics.startMetrics(); // Paper - start metrics
+         com.destroystokyo.paper.VersionHistoryManager.INSTANCE.getClass(); // Paper - load version history now

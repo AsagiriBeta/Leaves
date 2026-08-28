@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
+Subject: [PATCH] Bow infinity fix
+
+
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index a60133f2fbe7b35eb1ed5a8e6d781e720e56a245..272de0ee89b8a21f6024c93710c260904a4f4e94 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -2108,8 +2108,10 @@ public abstract class Player extends Avatar implements ContainerUser {
+             }
+         }
+ 
+-        if (anyEventCancelled.booleanValue() && !this.abilities.instabuild && this instanceof final ServerPlayer player) this.resyncUsingItem(player); // Paper - resync if no item matched the Predicate
+-        return this.hasInfiniteMaterials() ? new ItemStack(Items.ARROW) : ItemStack.EMPTY;
++        // Leaves start - bow infinity fix
++        if ((org.leavesmc.leaves.LeavesConfig.modify.bowInfinityFix || anyEventCancelled.booleanValue()) && !this.abilities.instabuild && this instanceof final ServerPlayer player) this.resyncUsingItem(player); // Paper - resync if no item matched the Predicate
++        return this.hasInfiniteMaterials() || (org.leavesmc.leaves.LeavesConfig.modify.bowInfinityFix && net.minecraft.world.item.enchantment.EnchantmentHelper.processAmmoUse((ServerLevel) this.level(), heldWeapon, new ItemStack(Items.ARROW), 1) <= 0) ? new ItemStack(Items.ARROW) : ItemStack.EMPTY;
++        // Leaves end - bow infinity fix
+     }
+ 
+     @Override

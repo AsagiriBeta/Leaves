@@ -1,66 +1,62 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Lumine1909 <133463833+Lumine1909@users.noreply.github.com>
-Date: Tue, 22 Apr 2025 23:32:41 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:50:18 +0000
 Subject: [PATCH] Leaves Utils
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 3bf618f1d756bad7755a87803132bd731e7c41be..bbf0100341dfd50cfe76bf4f47225e6b43dc17bd 100644
+index d958c4717739e588c5f8985dec5d215c745f49fc..0c9ee7202e4f52d862156daecb8e2e2d8f56bddf 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -374,6 +374,8 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -388,6 +388,7 @@ public abstract class Entity
+     public long activatedTick = Integer.MIN_VALUE;
      public boolean isTemporarilyActive;
      public long activatedImmunityTick = Integer.MIN_VALUE;
- 
 +    private net.minecraft.nbt.CompoundTag leavesData = new net.minecraft.nbt.CompoundTag(); // Leaves - Leaves ex data
-+
+ 
      public void inactiveTick() {
      }
-     // Paper end - EAR 2
-@@ -2659,6 +2661,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+@@ -2774,6 +2775,7 @@ public abstract class Entity
                  output.putBoolean("Paper.FreezeLock", true);
              }
              // Paper end
 +            output.store("Leaves.Data", net.minecraft.nbt.CompoundTag.CODEC, leavesData); // Leaves - leaves ex data
-         } catch (Throwable var7) {
-             CrashReport crashReport = CrashReport.forThrowable(var7, "Saving entity NBT");
-             CrashReportCategory crashReportCategory = crashReport.addCategory("Entity being saved");
-@@ -2779,6 +2782,7 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+         } catch (Throwable t) {
+             CrashReport report = CrashReport.forThrowable(t, "Saving entity NBT");
+             CrashReportCategory category = report.addCategory("Entity being saved");
+@@ -2893,6 +2895,7 @@ public abstract class Entity
              }
              freezeLocked = input.getBooleanOr("Paper.FreezeLock", false);
              // Paper end
 +            leavesData = input.read("Leaves.Data", net.minecraft.nbt.CompoundTag.CODEC).orElse(new net.minecraft.nbt.CompoundTag());
-         } catch (Throwable var7) {
-             CrashReport crashReport = CrashReport.forThrowable(var7, "Loading entity NBT");
-             CrashReportCategory crashReportCategory = crashReport.addCategory("Entity being loaded");
-@@ -5429,4 +5433,9 @@ public abstract class Entity implements SyncedDataHolder, DebugValueSource, Name
+         } catch (Throwable t) {
+             CrashReport report = CrashReport.forThrowable(t, "Loading entity NBT");
+             CrashReportCategory category = report.addCategory("Entity being loaded");
+@@ -4665,7 +4668,7 @@ public abstract class Entity
+         return this.is(EntityTypeTags.DEFLECTS_PROJECTILES) ? ProjectileDeflection.REVERSE : ProjectileDeflection.NONE;
+     }
+ 
+-    public @Nullable LivingEntity getControllingPassenger() {
++    public @org.jetbrains.annotations.NotNull LivingEntity getControllingPassenger() { // Leaves - notnull
+         return null;
+     }
+ 
+@@ -5470,4 +5473,10 @@ public abstract class Entity
          return ((ServerLevel) this.level()).isPositionEntityTicking(this.blockPosition());
      }
-     // Paper end - Expose entity id counter
+     // Paper end
++
 +    // Leaves start - leaves ex data
 +    public net.minecraft.nbt.CompoundTag getLeavesData() {
 +        return leavesData;
 +    }
 +    // Leaves end - leaves ex data
  }
-diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index 579bbba4e823d4d0318e58759ca732b7c8e4d865..ac1ca945fcea0997d837e7c5586d86a709f52d47 100644
---- a/net/minecraft/world/level/Level.java
-+++ b/net/minecraft/world/level/Level.java
-@@ -969,7 +969,7 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
-     }
- 
-     // Paper start - if loaded
--    @Nullable
-+    @org.jetbrains.annotations.NotNull // Leaves - notnull
-     @Override
-     public final ChunkAccess getChunkIfLoadedImmediately(int x, int z) {
-         return ((ServerLevel)this).chunkSource.getChunkAtIfLoadedImmediately(x, z);
 diff --git a/net/minecraft/world/level/LevelAccessor.java b/net/minecraft/world/level/LevelAccessor.java
-index 21d5042282a4eeaadfbb1057f5995e90acc7388e..b3af6fa78eaca16f094e404bf86c05d496b6a5f1 100644
+index 700b9e7f141c4a2689690224c86376c9b957540e..b7c52129df2ee880ac1f61e282184443953a3ae2 100644
 --- a/net/minecraft/world/level/LevelAccessor.java
 +++ b/net/minecraft/world/level/LevelAccessor.java
-@@ -42,7 +42,7 @@ public interface LevelAccessor extends CommonLevelAccessor, LevelReader, Schedul
+@@ -42,7 +42,7 @@ public interface LevelAccessor extends CommonLevelAccessor, ScheduledTickAccess
          return this.getLevelData().getGameTime();
      }
  
@@ -70,10 +66,10 @@ index 21d5042282a4eeaadfbb1057f5995e90acc7388e..b3af6fa78eaca16f094e404bf86c05d4
      default Difficulty getDifficulty() {
          return this.getLevelData().getDifficulty();
 diff --git a/net/minecraft/world/level/block/Block.java b/net/minecraft/world/level/block/Block.java
-index 94b4143449c99ee35db44ab8e2a766d924aa6410..6d0cdbd52a3bb4e09fd480fa08fa825e987d2a2c 100644
+index 29f5182c8528bfdced6a3c2c145e58721e723777..debf613713016443060ed85440ac0f80b1d0ad21 100644
 --- a/net/minecraft/world/level/block/Block.java
 +++ b/net/minecraft/world/level/block/Block.java
-@@ -659,6 +659,13 @@ public class Block extends BlockBehaviour implements ItemLike {
+@@ -696,6 +696,13 @@ public class Block extends BlockBehaviour implements ItemLike {
      }
      // CraftBukkit end
  
@@ -84,14 +80,14 @@ index 94b4143449c99ee35db44ab8e2a766d924aa6410..6d0cdbd52a3bb4e09fd480fa08fa825e
 +    }
 +    // Leaves end - reset push reaction
 +
-     record ShapePairKey(VoxelShape first, VoxelShape second) {
+     private record ShapePairKey(VoxelShape first, VoxelShape second) {
          @Override
-         public boolean equals(Object other) {
+         public boolean equals(final Object o) {
 diff --git a/net/minecraft/world/level/block/state/BlockBehaviour.java b/net/minecraft/world/level/block/state/BlockBehaviour.java
-index c5953d5751e655e121e459aaab35e7719948e69e..b1f1ea03072c63bc3032c9f023a8fb4ede34b34b 100644
+index c78d77089e34c4bb559f173b449bfb7d91b05d5c..af47032728316f071de658a7cb9a945fb1b8416a 100644
 --- a/net/minecraft/world/level/block/state/BlockBehaviour.java
 +++ b/net/minecraft/world/level/block/state/BlockBehaviour.java
-@@ -762,7 +762,7 @@ public abstract class BlockBehaviour implements FeatureElement {
+@@ -792,7 +792,7 @@ public abstract class BlockBehaviour implements FeatureElement {
          }
  
          public PushReaction getPistonPushReaction() {

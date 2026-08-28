@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:04:50 +0000
+Subject: [PATCH] Modify merge ItemEntity logic
+
+
+diff --git a/net/minecraft/world/entity/item/ItemEntity.java b/net/minecraft/world/entity/item/ItemEntity.java
+index 1ca2fe322e9e5e1f03eff504068450c146df7779..217fc2ecd056cd33801dcc54ff5f631e6f53fef8 100644
+--- a/net/minecraft/world/entity/item/ItemEntity.java
++++ b/net/minecraft/world/entity/item/ItemEntity.java
+@@ -305,7 +305,7 @@ public class ItemEntity extends Entity implements TraceableEntity, ChangePublish
+         ItemStack thisItemStack = this.getItem();
+         ItemStack otherItemStack = other.getItem();
+         if (Objects.equals(this.target, other.target) && areMergable(thisItemStack, otherItemStack)) {
+-            if (otherItemStack.getCount() < thisItemStack.getCount()) {
++            if (org.leavesmc.leaves.LeavesConfig.modify.followTickSequenceMerge || otherItemStack.getCount() < thisItemStack.getCount()) { // Leaves - add follow Tick Sequence Merge, see Paper#13073
+                 merge(this, thisItemStack, other, otherItemStack);
+             } else {
+                 merge(other, otherItemStack, this, thisItemStack);

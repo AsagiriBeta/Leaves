@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:19 +0000
+Subject: [PATCH] Disable crystal-portal proximity check
+
+
+diff --git a/net/minecraft/world/item/EndCrystalItem.java b/net/minecraft/world/item/EndCrystalItem.java
+index 4c9216d7a0c31a721b9e8cd92d2e999f0dde7685..427b598686ef412342ec019f39900084dd6bd1b5 100644
+--- a/net/minecraft/world/item/EndCrystalItem.java
++++ b/net/minecraft/world/item/EndCrystalItem.java
+@@ -54,7 +54,7 @@ public class EndCrystalItem extends Item {
+             level.gameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, above);
+             EnderDragonFight fight = serverLevel.getDragonFight();
+             if (fight != null) {
+-                fight.tryRespawn(above); // Paper - Perf: Do crystal-portal proximity check before entity lookup
++                            fight.tryRespawn(); // fight.tryRespawn(above); // Paper - Perf: Do crystal-portal proximity check before entity lookup // Leaves
+             }
+         }
+ 
+diff --git a/net/minecraft/world/level/dimension/end/EnderDragonFight.java b/net/minecraft/world/level/dimension/end/EnderDragonFight.java
+index ca1f11344df7c934e32ae8537b3e0f5fac441446..10c473d9c7061bfc20561d4f31a4b48ede30f2d8 100644
+--- a/net/minecraft/world/level/dimension/end/EnderDragonFight.java
++++ b/net/minecraft/world/level/dimension/end/EnderDragonFight.java
+@@ -614,12 +614,14 @@ public class EnderDragonFight extends SavedData {
+     }
+ 
+     public boolean tryRespawn() { // CraftBukkit - return boolean
++        /* Leaves
+         // Paper start - Perf: Do crystal-portal proximity check before entity lookup
+         return this.tryRespawn(null);
+     }
+ 
+     public boolean tryRespawn(@Nullable final BlockPos placedEndCrystalPos) { // placedEndCrystalPos is null if the tryRespawn() call was not caused by a placed end crystal
+         // Paper end - Perf: Do crystal-portal proximity check before entity lookup
++         */
+         if (this.dragonKilled && this.respawnStage == null) {
+             BlockPos location = this.exitPortalLocation;
+             if (location == null) {
+@@ -634,6 +636,7 @@ public class EnderDragonFight extends SavedData {
+ 
+                 location = this.exitPortalLocation;
+             }
++            /* Leaves
+             // Paper start - Perf: Do crystal-portal proximity check before entity lookup
+             if (placedEndCrystalPos != null && !this.level.paperConfig().misc.allowRemoteEnderDragonRespawning) {
+                 int dy = placedEndCrystalPos.getY() - location.getY();
+@@ -648,6 +651,7 @@ public class EnderDragonFight extends SavedData {
+                 }
+             }
+             // Paper end - Perf: Do crystal-portal proximity check before entity lookup
++             */
+ 
+             List<EndCrystal> crystals = Lists.newArrayList();
+             BlockPos center = location.above(1);

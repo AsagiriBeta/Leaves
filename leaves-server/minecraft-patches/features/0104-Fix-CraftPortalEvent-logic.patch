@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:38 +0000
+Subject: [PATCH] Fix CraftPortalEvent logic
+
+
+diff --git a/net/minecraft/world/level/block/EndPortalBlock.java b/net/minecraft/world/level/block/EndPortalBlock.java
+index 2d48b70e18547330078e49c8f01f2f39b08d274c..9eca012994e587c094724850d6f59b6ca98d1e4f 100644
+--- a/net/minecraft/world/level/block/EndPortalBlock.java
++++ b/net/minecraft/world/level/block/EndPortalBlock.java
+@@ -116,10 +116,10 @@ public class EndPortalBlock extends BaseEntityBlock implements Portal {
+         }
+ 
+         // CraftBukkit start
+-        relatives.removeAll(Relative.ROTATION); // remove relative rotation flags to simplify event mutation
++            // relatives.removeAll(Relative.ROTATION); // remove relative rotation flags to simplify event mutation // Leaves - no
+         float absoluteYaw = !fromEnd ? yRot : entity.getYRot() + yRot;
+         float absolutePitch = entity.getXRot() + xRot;
+-        org.bukkit.craftbukkit.event.PortalEventResult result = org.bukkit.craftbukkit.event.CraftEventFactory.handlePortalEvents(entity, org.bukkit.craftbukkit.util.CraftLocation.toBukkit(spawnPos, newLevel, absoluteYaw, absolutePitch), org.bukkit.PortalType.ENDER, 0, 0);
++            org.bukkit.craftbukkit.event.PortalEventResult result = org.bukkit.craftbukkit.event.CraftEventFactory.handlePortalEvents(entity, org.bukkit.craftbukkit.util.CraftLocation.toBukkit(spawnPos, newLevel.getWorld(), absoluteYaw, 0.0F), org.bukkit.PortalType.ENDER, 0, 0);
+         if (result == null) {
+             return null;
+         }

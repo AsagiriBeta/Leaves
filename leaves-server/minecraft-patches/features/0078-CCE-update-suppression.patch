@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
+Subject: [PATCH] CCE update suppression
+
+
+diff --git a/net/minecraft/world/level/block/ShulkerBoxBlock.java b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+index 44899662958c66cfba25a9a2dbacdec1e838619f..503d4fbaeba3e2fb55a68c514c4b1560bbc23868 100644
+--- a/net/minecraft/world/level/block/ShulkerBoxBlock.java
++++ b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+@@ -185,7 +185,9 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
+     protected int getAnalogOutputSignal(final BlockState state, final Level level, final BlockPos pos, final Direction direction) {
+         // Leaves start - update suppression crash fix
+         try {
+-            return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
++            return org.leavesmc.leaves.LeavesConfig.modify.oldMC.updater.cceUpdateSuppression ?
++                    AbstractContainerMenu.getRedstoneSignalFromContainer((net.minecraft.world.Container) level.getBlockEntity(pos)) : // Leaves - make cce happy(?)
++                    AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
+         } catch (ClassCastException ex) {
+             if (org.leavesmc.leaves.LeavesConfig.modify.updateSuppressionCrashFix) {
+                 throw new org.leavesmc.leaves.util.UpdateSuppressionException(pos, null, this, null, ex);

@@ -1,0 +1,93 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:00 +0000
+Subject: [PATCH] Vanilla hopper
+
+
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index a79a19b050f7a78cd0fe6954296432acd5ace854..c8fab5a630c9b981dd190df7d77830d43af9a6f5 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -298,36 +298,58 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+         ItemStack movedItem = origItemStack;
+         final int originalItemCount = origItemStack.getCount();
+         final int movedItemCount = Math.min(level.spigotConfig.hopperAmount, originalItemCount);
+-        container.setChanged(); // original logic always marks source inv as changed even if no move happens.
+-        movedItem.setCount(movedItemCount);
+-
+-        if (!skipPullModeEventFire) {
+-            movedItem = callPullMoveEvent(hopper, container, movedItem);
+-            if (movedItem == null) { // cancelled
+-                origItemStack.setCount(originalItemCount);
+-                // Drastically improve performance by returning true.
+-                // No plugin could have relied on the behavior of false as the other call
+-                // site for IMIE did not exhibit the same behavior
++        // Leaves start - fix vanilla
++        // Drastically improve performance by returning true.
++        // No plugin could have relied on the behavior of false as the other call
++        // site for IMIE did not exhibit the same behavior
++        if (org.leavesmc.leaves.LeavesConfig.fix.vanillaHopper && movedItem.getCount() <= movedItemCount) {
++            if (!skipPullModeEventFire) {
++                movedItem = callPullMoveEvent(hopper, container, movedItem);
++                if (movedItem == null) { // cancelled
++                    origItemStack.setCount(originalItemCount);
++                    return true;
++                }
++            }
++            movedItem = origItemStack.copy();
++            final ItemStack remainingItem = addItem(container, hopper, container.removeItem(i, movedItemCount), null);
++            if (remainingItem.isEmpty()) {
++                container.setChanged();
+                 return true;
+             }
+-        }
++            container.setItem(i, movedItem);
++        } else {
++            container.setChanged(); // original logic always marks source inv as changed even if no move happens.
++            movedItem.setCount(movedItemCount);
+ 
+-        final ItemStack remainingItem = addItem(container, hopper, movedItem, null);
+-        final int remainingItemCount = remainingItem.getCount();
+-        if (remainingItemCount != movedItemCount) {
+-            origItemStack = origItemStack.copy(true);
+-            origItemStack.setCount(originalItemCount);
+-            if (!origItemStack.isEmpty()) {
+-                origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
++            if (!skipPullModeEventFire) {
++                movedItem = callPullMoveEvent(hopper, container, movedItem);
++                if (movedItem == null) { // cancelled
++                    origItemStack.setCount(originalItemCount);
++                    // Drastically improve performance by returning true.
++                    // No plugin could have relied on the behavior of false as the other call
++                    // site for IMIE did not exhibit the same behavior
++                    return true;
++                }
+             }
+ 
+-            ignoreBlockEntityUpdates = true;
+-            container.setItem(i, origItemStack);
+-            ignoreBlockEntityUpdates = false;
+-            container.setChanged();
+-            return true;
++            final ItemStack remainingItem = addItem(container, hopper, movedItem, null);
++            final int remainingItemCount = remainingItem.getCount();
++            if (remainingItemCount != movedItemCount) {
++                origItemStack = origItemStack.copy(true);
++                origItemStack.setCount(originalItemCount);
++                if (!origItemStack.isEmpty()) {
++                    origItemStack.setCount(originalItemCount - movedItemCount + remainingItemCount);
++                }
++
++                ignoreBlockEntityUpdates = true;
++                container.setItem(i, origItemStack);
++                ignoreBlockEntityUpdates = false;
++                container.setChanged();
++                return true;
++            }
++            origItemStack.setCount(originalItemCount);
+         }
+-        origItemStack.setCount(originalItemCount);
++        // Leaves end - fix vanilla
+ 
+         if (level.paperConfig().hopper.cooldownWhenFull && !org.leavesmc.leaves.LeavesConfig.modify.mcTechnicalMode) { // Leaves - mc technical survival mode
+             applyCooldown(hopper);
