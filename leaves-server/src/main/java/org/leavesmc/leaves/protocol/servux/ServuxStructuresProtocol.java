@@ -42,7 +42,7 @@ import static net.minecraft.server.MinecraftServer.getServer;
 @LeavesProtocol.Register(namespace = "servux")
 public class ServuxStructuresProtocol implements LeavesProtocol {
 
-    public static final int PROTOCOL_VERSION = 2;
+    public static final int PROTOCOL_VERSION = 3;
     private static final int updateInterval = 40;
     private static final int timeout = 30 * 20;
     private static final Map<Integer, ServerPlayer> players = new ConcurrentHashMap<>();
@@ -370,11 +370,12 @@ public class ServuxStructuresProtocol implements LeavesProtocol {
                 int i = buf.readVarInt();
                 StructuresPayloadType type = StructuresPayloadType.fromId(i);
                 if (type == null) {
+                    ServuxProtocol.skipRemaining(buf);
                     throw new IllegalStateException("invalid packet type received");
                 } else if (type.equals(StructuresPayloadType.PACKET_S2C_STRUCTURE_DATA)) {
                     return new StructuresPayload(type, new FriendlyByteBuf(buf.readBytes(buf.readableBytes())));
                 } else {
-                    return new StructuresPayload(type, buf.readNbt());
+                    return new StructuresPayload(type, ServuxProtocol.readNbtOrEmpty(buf));
                 }
             }
         );
