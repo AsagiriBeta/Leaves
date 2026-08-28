@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Mon, 22 Jan 2024 11:41:13 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:59:59 +0000
 Subject: [PATCH] Renewable sponges
 
 
 diff --git a/net/minecraft/world/entity/monster/Guardian.java b/net/minecraft/world/entity/monster/Guardian.java
-index 39c7c9d7b92872b013fe4dbf68dafd02ecab3ab9..c67584b3db57760cd782c3b1dbbb3777600a1e1f 100644
+index 4dfab4dece54d14fb5648e44b2779b0f4ee89727..47b2d92121a22d52bd3c2456c7409485de8b1f97 100644
 --- a/net/minecraft/world/entity/monster/Guardian.java
 +++ b/net/minecraft/world/entity/monster/Guardian.java
-@@ -444,6 +444,28 @@ public class Guardian extends Monster {
+@@ -344,6 +344,28 @@ public class Guardian extends Monster {
          }
      }
  
@@ -16,7 +16,7 @@ index 39c7c9d7b92872b013fe4dbf68dafd02ecab3ab9..c67584b3db57760cd782c3b1dbbb3777
 +    @Override
 +    public void thunderHit(net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.LightningBolt lightning) {
 +        if (org.leavesmc.leaves.LeavesConfig.modify.renewableSponges && !this.isRemoved() && !(this instanceof ElderGuardian)) {
-+            ElderGuardian elderGuardian = new ElderGuardian(EntityType.ELDER_GUARDIAN, this.level());
++            ElderGuardian elderGuardian = new ElderGuardian(net.minecraft.world.entity.EntityTypes.ELDER_GUARDIAN, this.level());
 +            elderGuardian.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
 +            elderGuardian.finalizeSpawn(level, level.getCurrentDifficultyAt(elderGuardian.blockPosition()), EntitySpawnReason.CONVERSION, null);
 +            elderGuardian.setNoAi(this.isNoAi());
@@ -34,6 +34,6 @@ index 39c7c9d7b92872b013fe4dbf68dafd02ecab3ab9..c67584b3db57760cd782c3b1dbbb3777
 +    }
 +    // Leaves end - renewable sponges
 +
-     private static class GuardianMoveControl extends MoveControl {
+     public static class GuardianAttackGoal extends Goal {
          private final Guardian guardian;
- 
+         public int attackTime;

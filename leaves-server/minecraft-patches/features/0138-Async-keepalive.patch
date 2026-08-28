@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: HyacinthHaru <HyacinthHaru@foxmail.com>
-Date: Fri, 20 Mar 2026 11:43:05 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:05:09 +0000
 Subject: [PATCH] Async keepalive
 
 
 diff --git a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
-index 64e615758201d481214f0d5dea1db545376a1d98..5cb388c3cddddc6233b7a39f2dcfa9d05d629457 100644
+index 4c87bef71dff418c6d48e7fd3fa55a95fb99d438..785564095d3f4a55971889793a30b0fa68f7f334 100644
 --- a/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerCommonPacketListenerImpl.java
 @@ -46,6 +46,7 @@ public abstract class ServerCommonPacketListenerImpl implements ServerCommonPack

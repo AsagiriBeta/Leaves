@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Thu, 18 Jan 2024 12:31:31 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:53 +0000
 Subject: [PATCH] No TNT place update
 
 
 diff --git a/net/minecraft/world/level/block/TntBlock.java b/net/minecraft/world/level/block/TntBlock.java
-index d450d1e8625863a991d7a8ee54d83f9906ce4d60..2dd4e63acf45eaca5391349ec364e05bde5e9bb9 100644
+index c27fc92d6ff9dd7e07a61513601ef73ff16cf842..e11ed0c5f9ad13f81ef18856dde12c8925b6880b 100644
 --- a/net/minecraft/world/level/block/TntBlock.java
 +++ b/net/minecraft/world/level/block/TntBlock.java
 @@ -47,7 +47,7 @@ public class TntBlock extends Block {

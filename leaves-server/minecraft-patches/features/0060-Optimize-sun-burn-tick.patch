@@ -1,15 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Thu, 20 Jul 2023 15:18:50 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:26 +0000
 Subject: [PATCH] Optimize sun burn tick
 
-This patch is Powered by Gale(https://github.com/GaleMC/Gale)
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 983370f37b744eb43c3d9c3edd1eb99e545250d7..36f6265e6a23522042d5893ded486fd307abe6b7 100644
+index a213d03b6c66dbf65c2194e3a203aba1150867ff..426bcbc4e23f67c75d88eeacb4b8db457b19bc15 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -2213,11 +2213,23 @@ public abstract class Entity
+@@ -2299,11 +2299,23 @@ public abstract class Entity
  
      @Deprecated
      public float getLightLevelDependentMagicValue() {
@@ -34,10 +33,10 @@ index 983370f37b744eb43c3d9c3edd1eb99e545250d7..36f6265e6a23522042d5893ded486fd3
          this.absSnapTo(x, y, z);
          this.absSnapRotationTo(yRot, xRot);
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 3bbf67d96f687b7275a4e496f0d25018ff4890c7..b03745b65eede6b9e12aa61906df050ea1370325 100644
+index 4787c22a12b9cde9e55ace0cec0622e938ac43f6..fe3e3d3c4f85c604601bcdb4e44ee3d4e146e91a 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -592,8 +592,27 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -579,8 +579,27 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
          }
      }
  

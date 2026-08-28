@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Fortern <blueten.ki@gmail.com>
-Date: Thu, 24 Oct 2024 23:10:34 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:02:30 +0000
 Subject: [PATCH] Configurable collision behavior
 
 
 diff --git a/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java b/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java
-index de764da80793d272ff597b4a0742ce785838799a..3dcb3f7a4828b9cb74fa5f0c1c6dcc7371bb8fdc 100644
+index 54b2492c3ab6bf9ff52cec53dc4635f725f9eb4f..6e94231f4dbaeabb091bb5943d2d1a095c4a4408 100644
 --- a/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java
 +++ b/ca/spottedleaf/moonrise/patches/collisions/CollisionUtil.java
 @@ -2022,7 +2022,7 @@ public final class CollisionUtil {
@@ -17,7 +17,7 @@ index de764da80793d272ff597b4a0742ce785838799a..3dcb3f7a4828b9cb74fa5f0c1c6dcc73
                                                  continue;
                                              }
                                          }
-@@ -2076,6 +2076,16 @@ public final class CollisionUtil {
+@@ -2077,6 +2077,16 @@ public final class CollisionUtil {
          return ret;
      }
  

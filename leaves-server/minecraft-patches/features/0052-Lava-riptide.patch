@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Fri, 7 Jul 2023 16:53:32 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:57:54 +0000
 Subject: [PATCH] Lava riptide
 
 
 diff --git a/net/minecraft/world/item/TridentItem.java b/net/minecraft/world/item/TridentItem.java
-index 2b091511bf82a0012fe4cbc4bc3d5f9b56dfdbeb..f1620e072294505cb28cc6093ea0164563c2921f 100644
+index cb02ef87586e81499a390fd0db9f41115f1be36d..a504cfdf4f48fa06a56696b3f82db2cea7045b16 100644
 --- a/net/minecraft/world/item/TridentItem.java
 +++ b/net/minecraft/world/item/TridentItem.java
 @@ -71,7 +71,7 @@ public class TridentItem extends Item implements ProjectileItem {

@@ -1,12 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Thu, 20 Jul 2023 21:13:28 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:26 +0000
 Subject: [PATCH] Skip entity move if movement is zero
 
-This patch is Powered by Gale(https://github.com/GaleMC/Gale)
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 53aa97cc58c98f5147baeb25ac3a58206e1c4913..dfa1badd83f183e0497eaf205c36a72dac21d3f7 100644
+index 426bcbc4e23f67c75d88eeacb4b8db457b19bc15..a6a3b425df9a5a27b290a04254aa8fe4a400198b 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -280,6 +280,7 @@ public abstract class Entity
@@ -17,7 +16,7 @@ index 53aa97cc58c98f5147baeb25ac3a58206e1c4913..dfa1badd83f183e0497eaf205c36a72d
      public boolean onGround;
      public boolean horizontalCollision;
      public boolean verticalCollision;
-@@ -1132,6 +1133,13 @@ public abstract class Entity
+@@ -1138,6 +1139,13 @@ public abstract class Entity
      // Paper end - detailed watchdog information
  
      public void move(final MoverType moverType, Vec3 delta) {
@@ -31,7 +30,7 @@ index 53aa97cc58c98f5147baeb25ac3a58206e1c4913..dfa1badd83f183e0497eaf205c36a72d
          final Vec3 originalMovement = delta; // Paper - Expose pre-collision velocity
          // Paper start - detailed watchdog information
          ca.spottedleaf.moonrise.common.util.TickThread.ensureTickThread("Cannot move an entity off-main");
-@@ -4537,6 +4545,7 @@ public abstract class Entity
+@@ -4621,6 +4629,7 @@ public abstract class Entity
      }
  
      public final void setBoundingBox(final AABB bb) {

@@ -1,9 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Sun, 21 Aug 2022 08:29:15 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:54:50 +0000
 Subject: [PATCH] Reduce chunk loading & lookups
 
-This patch is Powered by Pufferfish(https://github.com/pufferfish-gg/Pufferfish)
 
 diff --git a/net/minecraft/world/entity/monster/EnderMan.java b/net/minecraft/world/entity/monster/EnderMan.java
 index 9b4ae8afda1f2202761cb49bc4f1181ce4eb55d5..33d1e88f19bfcaeba58a433361975c0a934cc495 100644

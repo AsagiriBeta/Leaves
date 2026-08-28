@@ -1,10 +1,8 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: HyacinthHaru <122684177+HyacinthHaru@users.noreply.github.com>
-Date: Tue, 28 Apr 2026 18:50:00 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:05:09 +0000
 Subject: [PATCH] Fix stuck zombified piglin anger target
 
-Cleans up the running anger timer whenever neither target nor
-persistentAngerTarget points to a valid player.
 
 diff --git a/net/minecraft/world/entity/NeutralMob.java b/net/minecraft/world/entity/NeutralMob.java
 index 3425ac4f186f144527e612bc895457ba4cd3ff93..99e8df0004d58721c99fcb01a162c952fe3ebc07 100644

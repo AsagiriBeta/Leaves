@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Lumine1909 <133463833+Lumine1909@users.noreply.github.com>
-Date: Thu, 6 Feb 2025 00:14:23 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:07:52 +0000
 Subject: [PATCH] Bytebuf API
 
 
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 864ca0644ae904909c294de43ac66466adf5ffe8..4783fa48d63f2237e2af3b08236d007a534db2bc 100644
+index 1c60977fb471edb3a6775cbf4bbe4bd777d3792c..9b0ad9ecce658001d70551f36a645bad5868e762 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-@@ -420,6 +420,8 @@ public final class CraftServer implements Server {
+@@ -416,6 +416,8 @@ public final class CraftServer implements Server {
  
          CraftRegistry.setMinecraftRegistry(console.registryAccess());
  
@@ -17,7 +17,7 @@ index 864ca0644ae904909c294de43ac66466adf5ffe8..4783fa48d63f2237e2af3b08236d007a
          if (!Main.useConsole) {
              this.getLogger().info("Console input is disabled due to --noconsole command argument");
          }
-@@ -2980,4 +2982,11 @@ public final class CraftServer implements Server {
+@@ -2981,4 +2983,11 @@ public final class CraftServer implements Server {
          return photographerManager;
      }
      // Leaves end - replay mod api
@@ -30,12 +30,12 @@ index 864ca0644ae904909c294de43ac66466adf5ffe8..4783fa48d63f2237e2af3b08236d007a
 +    // Leaves end - Bytebuf API
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-index fe105d07ec7a67245950839209149c869bb6349b..96857c4f18ab56ad1b655c7b92b1ac944153984a 100644
+index 9acdbad30e0f31512005a6462236a9920dc12a9b..310e26b3c5cb11f29ea4c403e8976a66d4b5f405 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPlayer.java
-@@ -3367,4 +3367,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
-         super.knockback(strength, directionX, directionZ);
-         this.entity.hurtMarked = true;
+@@ -3388,4 +3388,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player, PluginMessa
+         this.getHandle().fixedPose = false;
+         this.getHandle().updatePlayerPose();
      }
 +
 +    // Leaves start - Bytebuf API

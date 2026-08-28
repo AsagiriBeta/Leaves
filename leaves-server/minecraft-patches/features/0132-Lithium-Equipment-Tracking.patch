@@ -1,27 +1,9 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: MC_XiaoHei <xor7xiaohei@gmail.com>
-Date: Tue, 9 Nov 2077 00:00:00 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:04:50 +0000
 Subject: [PATCH] Lithium Equipment Tracking
 
-Origin patch author: HaHaWTH <102713261+HaHaWTH@users.noreply.github.com>
-Origin patch link: https://github.com/Winds-Studio/Leaf/blob/ver/1.21.8/leaf-server/minecraft-patches/features/0268-Lithium-equipment-tracking.patch
-
-Should have special treatment to ArmorStand, since Paper introduced the configurable
-ArmorStand no-tick, and still gives it ability to update equipment changes.
-Thus added a bypass condition in LivingEntity#collectEquipmentChanges, always send
-ArmorStand equipment changes even if the ArmorStand is no-tick
-
-This patch is based on the following mixins:
-* "net/caffeinemc/mods/lithium/mixin/util/item_component_and_count_tracking/PatchedDataComponentMapMixin.java"
-* "net/caffeinemc/mods/lithium/mixin/util/item_component_and_count_tracking/ItemStackMixin.java"
-* "net/caffeinemc/mods/lithium/mixin/entity/equipment_tracking/enchantment_ticking/LivingEntityMixin.java"
-* "net/caffeinemc/mods/lithium/mixin/entity/equipment_tracking/equipment_changes/LivingEntityMixin.java"
-* "net/caffeinemc/mods/lithium/mixin/entity/equipment_tracking/EntityEquipmentMixin.java"
-* "net/caffeinemc/mods/lithium/common/util/change_tracking/ChangePublisher.java"
-* "net/caffeinemc/mods/lithium/common/util/change_tracking/ChangeSubscriber.java"
-By: 2No2Name <2No2Name@web.de>
-As part of: Lithium (https://github.com/CaffeineMC/lithium)
-Licensed under: LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
+This patch is Powered by Lithium(https://github.com/CaffeineMC/lithium)
 
 diff --git a/net/minecraft/world/entity/EntityEquipment.java b/net/minecraft/world/entity/EntityEquipment.java
 index 20041325ae77f16a5b77f5de7255788b52ebb3a5..1456dbc98de65da1d854a3d3c224e4dad2de0f38 100644
@@ -195,10 +177,10 @@ index 20041325ae77f16a5b77f5de7255788b52ebb3a5..1456dbc98de65da1d854a3d3c224e4da
 +    // Leaves end - Lithium - equipment tracking
  }
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
-index b2f5cb5ca2f5b67fa61bf88251557adac3904781..4edc2b5c62b378f6ef34ff47eb436fcc74d72445 100644
+index c6646da5255269e0cfc0736d5e2a69c37a4afb9a..73e684ce234627e8869f909317d502d77aee2b0a 100644
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -426,9 +426,17 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -445,9 +445,17 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
              this.getSleepingPos().ifPresent(this::setPosToBed);
          }
  
@@ -218,18 +200,18 @@ index b2f5cb5ca2f5b67fa61bf88251557adac3904781..4edc2b5c62b378f6ef34ff47eb436fcc
  
          super.baseTick();
          ProfilerFiller profiler = Profiler.get();
-@@ -3571,6 +3579,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3576,6 +3584,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
      public void detectEquipmentUpdates() {
-         Map<EquipmentSlot, ItemStack> changedItems = this.collectEquipmentChanges();
+         Map<EquipmentSlot, ItemStack> changedItems = this.collectEquipmentChanges(this.lastEquipmentItems);
          if (changedItems != null) {
 +            if (org.leavesmc.leaves.LeavesConfig.performance.equipmentTracking && !(this instanceof net.minecraft.world.entity.player.Player)) this.equipment.lithium$onEquipmentChangesSent(); // Leaves - Lithium - equipment tracking
              this.handleHandSwap(changedItems);
              if (!changedItems.isEmpty()) {
                  this.handleEquipmentChanges(changedItems);
-@@ -3579,6 +3588,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+@@ -3584,6 +3593,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
      }
  
-     private @Nullable Map<EquipmentSlot, ItemStack> collectEquipmentChanges() {
+     protected @Nullable Map<EquipmentSlot, ItemStack> collectEquipmentChanges(final Map<EquipmentSlot, ItemStack> lastEquipmentItems) {
 +        // Leaves start - Lithium - equipment tracking
 +        if (org.leavesmc.leaves.LeavesConfig.performance.equipmentTracking) {
 +            final boolean isArmorStandUpdateNoTick = this instanceof net.minecraft.world.entity.decoration.ArmorStand stand && !stand.canTick && stand.noTickEquipmentDirty;
@@ -242,10 +224,10 @@ index b2f5cb5ca2f5b67fa61bf88251557adac3904781..4edc2b5c62b378f6ef34ff47eb436fcc
          // Paper start - EntityEquipmentChangedEvent
          record EquipmentChangeImpl(org.bukkit.inventory.ItemStack oldItem, org.bukkit.inventory.ItemStack newItem) implements io.papermc.paper.event.entity.EntityEquipmentChangedEvent.EquipmentChange {
 diff --git a/net/minecraft/world/entity/decoration/ArmorStand.java b/net/minecraft/world/entity/decoration/ArmorStand.java
-index 11f15d4c9a0c4e9e4fd115bddcd947e8b5fa5b47..750ee0ea82a57dab33022f1fb928f7bc53b36d01 100644
+index c9921927ec5f606e7b9537086249e1bfd3efb4ec..8b66874ac94dc9142b3085f4a0ade8531384d0fe 100644
 --- a/net/minecraft/world/entity/decoration/ArmorStand.java
 +++ b/net/minecraft/world/entity/decoration/ArmorStand.java
-@@ -92,7 +92,7 @@ public class ArmorStand extends LivingEntity {
+@@ -93,7 +93,7 @@ public class ArmorStand extends LivingEntity {
      // Paper start - Allow ArmorStands not to tick
      public boolean canTick = true;
      public boolean canTickSetByAPI = false;
@@ -254,7 +236,7 @@ index 11f15d4c9a0c4e9e4fd115bddcd947e8b5fa5b47..750ee0ea82a57dab33022f1fb928f7bc
      // Paper end - Allow ArmorStands not to tick
  
      public ArmorStand(final EntityType<? extends ArmorStand> type, final Level level) {
-@@ -555,8 +555,9 @@ public class ArmorStand extends LivingEntity {
+@@ -559,8 +559,9 @@ public class ArmorStand extends LivingEntity {
      public void tick() {
          if (!this.canTick) {
              if (this.noTickEquipmentDirty) {

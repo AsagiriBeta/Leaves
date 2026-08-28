@@ -1,22 +1,15 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: MC_XiaoHei <xor7xiaohei@gmail.com>
-Date: Wed, 8 Oct 2025 18:07:47 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:05:09 +0000
 Subject: [PATCH] Old minecart motion behavior
 
-This patch is Powered by [CPCA](https://github.com/liuyuexiaoyu1/carpet_pc_additon)
-
-This patch is based on the following mixins:
-* "com/pigconnon/carpet_pc_addition/mixin/MinecartMotionFix/EntityMixin.java"
-* "com/pigconnon/carpet_pc_addition/mixin/MinecartMotionFix/NetherPortalBlockMixin.java"
-By: liuyuexiaoyu1
-As part of: CPCA (https://github.com/liuyuexiaoyu1/carpet_pc_additon)
-Licensed under: MIT (https://mit-license.org)
+This patch is Powered by CPCA
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index a5ce24663e2a2e6add6ac099371fbf5e71da322e..1e6342ab3030946d68b15fab0d72a2257463354e 100644
+index 1c3f38ffed8d827b7930ab41c9f58ff47d885f14..fa54dd1db30a266de12e757e7fad8975a1d643ba 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -4217,7 +4217,7 @@ public abstract class Entity
+@@ -4299,7 +4299,7 @@ public abstract class Entity
                  transition.relatives().contains(Relative.Y) ? 0.0 : passengerOffset.y(),
                  transition.relatives().contains(Relative.Z) ? 0.0 : passengerOffset.z()
              );
@@ -26,10 +19,10 @@ index a5ce24663e2a2e6add6ac099371fbf5e71da322e..1e6342ab3030946d68b15fab0d72a225
  
      private void sendTeleportTransitionToRidingPlayers(final TeleportTransition transition) {
 diff --git a/net/minecraft/world/level/block/NetherPortalBlock.java b/net/minecraft/world/level/block/NetherPortalBlock.java
-index 4fbc8e7114302004fc498329d6b9f3a0290dee76..0f3518e864c3917a0b9b173beff37af16fc0dace 100644
+index eaad96ddf584924beca270e962077d083d64f57a..5c69f11fd31f0206f7368302a442a80b15ff8772 100644
 --- a/net/minecraft/world/level/block/NetherPortalBlock.java
 +++ b/net/minecraft/world/level/block/NetherPortalBlock.java
-@@ -272,7 +272,17 @@ public class NetherPortalBlock extends Block implements Portal {
+@@ -274,7 +274,17 @@ public class NetherPortalBlock extends Block implements Portal {
          double width = foundRectangle.axis1Size;
          double height = foundRectangle.axis2Size;
          EntityDimensions dimensions = entity.getDimensions(entity.getPose());
@@ -48,12 +41,12 @@ index 4fbc8e7114302004fc498329d6b9f3a0290dee76..0f3518e864c3917a0b9b173beff37af1
          double offsetRight = dimensions.width() / 2.0 + (width - dimensions.width()) * offset.x();
          double offsetUp = (height - dimensions.height()) * offset.y();
          double offsetForward = 0.5 + offset.z();
-@@ -284,7 +294,7 @@ public class NetherPortalBlock extends Block implements Portal {
+@@ -286,7 +296,7 @@ public class NetherPortalBlock extends Block implements Portal {
          );
          Vec3 collisionFreePos = PortalShape.findCollisionFreePosition(targetPos, newLevel, entity, dimensions);
          return new TeleportTransition(
--            newLevel, collisionFreePos, Vec3.ZERO, outputRotation, 0.0F, Relative.union(Relative.DELTA, Relative.ROTATION), postTeleportTransition, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL // CraftBukkit
-+            newLevel, collisionFreePos, outputDelta, outputRotation, 0.0F, Relative.union(Relative.DELTA, Relative.ROTATION), postTeleportTransition, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL // CraftBukkit // Leaves - old minecart motion behavior
-         );
+-            newLevel, collisionFreePos, Vec3.ZERO, outputRotation, 0.0F, Relative.union(Relative.DELTA, Relative.ROTATION), postTeleportTransition
++            newLevel, collisionFreePos, outputDelta, outputRotation, 0.0F, Relative.union(Relative.DELTA, Relative.ROTATION), postTeleportTransition
+         ).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.NETHER_PORTAL); // CraftBukkit
      }
  

@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Fortern <blueten.ki@gmail.com>
-Date: Sat, 20 Jan 2024 02:50:56 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:53 +0000
 Subject: [PATCH] Placing locked hopper no longer send NC updates
 
 
 diff --git a/net/minecraft/world/level/Level.java b/net/minecraft/world/level/Level.java
-index a8cdd2d38f6a49f1b5a54db55576274d51d5d9a2..1d78eca5e060668baf5c41ec4a76dfdd94b7ee83 100644
+index fe459d98e8d1c19a0f5b656f791ac2123be265b3..0091d318fea5d585f650f1e3df7352cdbb4db55d 100644
 --- a/net/minecraft/world/level/Level.java
 +++ b/net/minecraft/world/level/Level.java
-@@ -1176,7 +1176,11 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
+@@ -1180,7 +1180,11 @@ public abstract class Level implements LevelAccessor, AutoCloseable, ca.spottedl
              }
  
              if ((updateFlags & Block.UPDATE_NEIGHBORS) != 0) {

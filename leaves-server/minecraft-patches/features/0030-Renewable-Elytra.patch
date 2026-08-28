@@ -1,12 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Mon, 12 Dec 2022 16:41:52 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:55:12 +0000
 Subject: [PATCH] Renewable Elytra
 
-This patch is Powered by Carpet-TIS-Addition(https://github.com/plusls/Carpet-TIS-Addition)
 
 diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
-index 6cc9c6c04985a0b63ee509659ffe6dbe2921915e..3218438c476a11ffcd3f03a9e5ac2c1492b80305 100644
+index 6130c477349096d5912dce859b616661e2f43b36..8854ba4ae6a55fc220dc79c62ad457331d34d9dc 100644
 --- a/net/minecraft/world/entity/monster/Phantom.java
 +++ b/net/minecraft/world/entity/monster/Phantom.java
 @@ -228,6 +228,20 @@ public class Phantom extends Mob implements Enemy {

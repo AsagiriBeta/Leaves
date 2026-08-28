@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Wed, 5 Jul 2023 17:42:24 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:57:54 +0000
 Subject: [PATCH] Cache ignite odds
 
 
 diff --git a/net/minecraft/world/level/block/FireBlock.java b/net/minecraft/world/level/block/FireBlock.java
-index 5602bdde7fc5dc10ec9281dcc52a817a3944c252..baa7d541b141729d6c1d6acf9e007265c31adbc7 100644
+index 0ab93b5937cf098750820affb0969ccfbc578cca..8b83c14b4d9fcb545f69b4a5ab4621b277ae68c2 100644
 --- a/net/minecraft/world/level/block/FireBlock.java
 +++ b/net/minecraft/world/level/block/FireBlock.java
 @@ -202,6 +202,7 @@ public class FireBlock extends BaseFireBlock {

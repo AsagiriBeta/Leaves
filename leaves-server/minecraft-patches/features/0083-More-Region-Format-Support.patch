@@ -1,6 +1,6 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Wed, 5 Feb 2025 22:04:41 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:53 +0000
 Subject: [PATCH] More Region Format Support
 
 
@@ -54,10 +54,10 @@ index 51c126735ace8fdde89ad97b5cab62f244212db0..a6573e327ace16b7ea320eb1440ffcbc
 +    public void moonrise$write(final org.leavesmc.leaves.region.IRegionFile regionFile) throws IOException; // Leaves - more region format
  }
 diff --git a/net/minecraft/server/MinecraftServer.java b/net/minecraft/server/MinecraftServer.java
-index 391aa65223207ea6ba0605f5e782b52f881ab1fb..d7795d0d87f1a67e2d0ed1bd47d67f680b8d2021 100644
+index aec776f9fa1c82f7f358e2f5a9ed536201f4b5a4..bd80dd69d5159a072d4d1e7b649d55bcfd9b068f 100644
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -980,10 +980,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -955,10 +955,10 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          if (flush) {
              for (ServerLevel level : this.getAllLevels()) {
                  String storageName = level.getChunkSource().chunkMap.getStorageName();
@@ -122,7 +122,7 @@ index b228cd6c54e8c8998923ab332882d99092769c67..cc5ffdd559eb0ec66516814336714f6d
              if (this.previousWriteFuture != null) {
                  this.previousWriteFuture.join();
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFile.java b/net/minecraft/world/level/chunk/storage/RegionFile.java
-index 42d07aef0b2f646ec52ed6f4e7c003dbf82bd92d..ef32fdb94989bc293ba7f4bb785e67754ddda809 100644
+index 3de7fd2b084c38e72d7a6bc416880a881f514ad3..be6e8a71f059b88d89aaca671a2e72f2ab051e14 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFile.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFile.java
 @@ -22,7 +22,7 @@ import net.minecraft.world.level.ChunkPos;
@@ -185,14 +185,14 @@ index 42d07aef0b2f646ec52ed6f4e7c003dbf82bd92d..ef32fdb94989bc293ba7f4bb785e6775
          try (DataInputStream out = new DataInputStream(new java.io.BufferedInputStream(new java.util.zip.InflaterInputStream(Files.newInputStream(file))))) {
              return net.minecraft.nbt.NbtIo.read((java.io.DataInput) out);
 diff --git a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
-index e47a91b1869801258d0db20c126722fb06522c80..23f60788e8eda68d0341bf06457f2f0ee260fe23 100644
+index 63b40c420030d935bb81a219fb33defe0946e21f..197f368e58e1d1b887dc75163869a209c4d247c4 100644
 --- a/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 +++ b/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
 @@ -19,7 +19,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
      private static final org.slf4j.Logger LOGGER = com.mojang.logging.LogUtils.getLogger(); // Paper
      public static final String ANVIL_EXTENSION = ".mca";
      private static final int MAX_CACHE_SIZE = 256;
--    public final Long2ObjectLinkedOpenHashMap<RegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();
+-    private final Long2ObjectLinkedOpenHashMap<RegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>();
 +    public final Long2ObjectLinkedOpenHashMap<org.leavesmc.leaves.region.IRegionFile> regionCache = new Long2ObjectLinkedOpenHashMap<>(); // Leaves - more region format
      private final RegionStorageInfo info;
      private final Path folder;
@@ -383,7 +383,7 @@ index e47a91b1869801258d0db20c126722fb06522c80..23f60788e8eda68d0341bf06457f2f0e
          }
 @@ -398,7 +417,7 @@ public class RegionFileStorage implements AutoCloseable, ca.spottedleaf.moonrise
  
-     public void write(final ChunkPos pos, final @Nullable CompoundTag value) throws IOException { // Paper - rewrite chunk system - public
+     public void write(final ChunkPos pos, final @Nullable CompoundTag value) throws IOException {
          if (!SharedConstants.DEBUG_DONT_SAVE_WORLD) {
 -            RegionFile region = this.getRegionFile(pos, value == null); // CraftBukkit // Paper - rewrite chunk system
 +            org.leavesmc.leaves.region.IRegionFile region = this.getRegionFile(pos, value == null); // CraftBukkit // Paper - rewrite chunk system // Leaves - more region format

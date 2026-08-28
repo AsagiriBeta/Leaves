@@ -1,12 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Tue, 18 Jul 2023 14:29:47 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:26 +0000
 Subject: [PATCH] Skip secondary POI sensor if absent
 
-This patch is Powered by Gale(https://github.com/GaleMC/Gale)
 
 diff --git a/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java b/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
-index ec12508c112b1e7748a5d197b73a0d540bed10fc..4172da3fce736bf7d6be2fa5eb944df68e25e23b 100644
+index 7d3e843c2d3c5e15b7bea7302d6118419d3a4957..36444f2423eb9e6ba5abbd78249c0591c45c298f 100644
 --- a/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
 +++ b/net/minecraft/world/entity/ai/sensing/SecondaryPoiSensor.java
 @@ -22,6 +22,15 @@ public class SecondaryPoiSensor extends Sensor<Villager> {

@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Thu, 2 Jan 2025 22:01:36 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:38 +0000
 Subject: [PATCH] Fix CraftPortalEvent logic
 
 
 diff --git a/net/minecraft/world/level/block/EndPortalBlock.java b/net/minecraft/world/level/block/EndPortalBlock.java
-index 6a656113e5206552dbca5de3fa24f788dddbb8e7..8d0e97647946509af5f536f7856b68a68fa6f9a4 100644
+index 2d48b70e18547330078e49c8f01f2f39b08d274c..9eca012994e587c094724850d6f59b6ca98d1e4f 100644
 --- a/net/minecraft/world/level/block/EndPortalBlock.java
 +++ b/net/minecraft/world/level/block/EndPortalBlock.java
 @@ -116,10 +116,10 @@ public class EndPortalBlock extends BaseEntityBlock implements Portal {

@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Lumine1909 <133463833+Lumine1909@users.noreply.github.com>
-Date: Fri, 23 May 2025 08:05:45 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:01:53 +0000
 Subject: [PATCH] Old zombie piglin drop behavior
 
 
 diff --git a/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java b/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
-index fb72d1a79705f023e6e4b22ee26391623b931ab0..e0ac326513f5028664a06f81bee27b4aee8671f4 100644
+index a806369361bf18e2729ba634d7508f8f68882b36..9f21d175fac62a1116ae6cfa7668df502aa9a7e0 100644
 --- a/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
 +++ b/net/minecraft/world/entity/monster/zombie/ZombifiedPiglin.java
 @@ -113,6 +113,9 @@ public class ZombifiedPiglin extends Zombie implements NeutralMob {

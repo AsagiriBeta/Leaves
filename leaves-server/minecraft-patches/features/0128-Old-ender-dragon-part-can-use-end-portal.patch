@@ -1,35 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: MC_XiaoHei <xor7xiaohei@gmail.com>
-Date: Sun, 6 Jul 2025 10:32:36 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:02:30 +0000
 Subject: [PATCH] Old ender dragon part can use end portal
 
-This patch is Powered by CrystalCarpetAddition(https://github.com/Crystal0404/CrystalCarpetAddition)
-
-/*
- * This file is part of the Crystal Carpet Addition project, licensed under the
- * GNU General Public License v3.0
- *
- * Copyright (C) 2024  Crystal0404 and contributors
- *
- * Crystal Carpet Addition is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Crystal Carpet Addition is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Crystal Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
- */
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 4ca24f14d4fc6897fb6615eea8c8e26bd64847bd..bfbfb46522a43f85706e15baf4eb373400edbadc 100644
+index c60657c10f15ea601d9cd665a9145d51b4cefb16..791d87e8cc4d7d8f5dafbd9cb261a8bd4f614c91 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -204,7 +204,7 @@ public abstract class Entity
+@@ -201,7 +201,7 @@ public abstract class Entity
      // Paper end - Share random for entities to make them more random
      public org.bukkit.event.entity.CreatureSpawnEvent.@Nullable SpawnReason spawnReason; // Paper - Entity#getEntitySpawnReason
  
@@ -38,7 +17,7 @@ index 4ca24f14d4fc6897fb6615eea8c8e26bd64847bd..bfbfb46522a43f85706e15baf4eb3734
  
      public org.bukkit.craftbukkit.entity.CraftEntity getBukkitEntity() {
          if (this.bukkitEntity == null) {
-@@ -4064,7 +4064,7 @@ public abstract class Entity
+@@ -4139,7 +4139,7 @@ public abstract class Entity
  
      public @Nullable Entity teleport(TeleportTransition transition) { // Paper - remove param final
          // Paper start - Fix item duplication and teleport issues
@@ -47,7 +26,7 @@ index 4ca24f14d4fc6897fb6615eea8c8e26bd64847bd..bfbfb46522a43f85706e15baf4eb3734
              LOGGER.warn("Illegal Entity Teleport {} to {}:{}", this, transition.newLevel(), transition.position(), new Throwable());
              return null;
          }
-@@ -4181,7 +4181,7 @@ public abstract class Entity
+@@ -4256,7 +4256,7 @@ public abstract class Entity
          newEntity.restoreFrom(this);
          this.removeAfterChangingDimensions();
          newEntity.teleportSetPosition(PositionMoveRotation.of(this), PositionMoveRotation.of(transition), transition.relatives());
@@ -56,7 +35,7 @@ index 4ca24f14d4fc6897fb6615eea8c8e26bd64847bd..bfbfb46522a43f85706e15baf4eb3734
  
          for (Entity newPassenger : newPassengers) {
              newPassenger.startRiding(newEntity, true, false);
-@@ -4294,6 +4294,7 @@ public abstract class Entity
+@@ -4376,6 +4376,7 @@ public abstract class Entity
      }
  
      public boolean canTeleport(final Level from, final Level to) {
@@ -65,10 +44,10 @@ index 4ca24f14d4fc6897fb6615eea8c8e26bd64847bd..bfbfb46522a43f85706e15baf4eb3734
          if (!this.isAlive() || !this.valid) return false; // Paper - Fix item duplication and teleport issues
          if (from.dimension() == Level.END && to.dimension() == Level.OVERWORLD) {
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 85cc3228091ba769e79297c924549a7daaf1fff8..df73fdd8affd0a20c1ca456b02c8f31a872f25d4 100644
+index fe3e3d3c4f85c604601bcdb4e44ee3d4e146e91a..905a73fe81ccc057ceb6172e10a4d4b086c7872b 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
-@@ -404,6 +404,16 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -408,6 +408,16 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
          if (!this.level().isClientSide() && this.tickCount % 5 == 0) {
              this.updateControlFlags();
          }

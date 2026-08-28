@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: MC_XiaoHei <xor7xiaohei@gmail.com>
-Date: Fri, 4 Jul 2025 09:11:46 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:02:30 +0000
 Subject: [PATCH] Old projectile explosion behavior
 
 
 diff --git a/net/minecraft/world/level/ServerExplosion.java b/net/minecraft/world/level/ServerExplosion.java
-index 83e4bdacecb49ae06ed11efd200a779680d2920f..20f55e5c61a203c5bafc190fc700ef8b218acfe5 100644
+index ecb11abf40b4c7910909e0a44eee6c5d848a6d68..23d43d9b386a3b8412bb13c42ec65c4730457d56 100644
 --- a/net/minecraft/world/level/ServerExplosion.java
 +++ b/net/minecraft/world/level/ServerExplosion.java
 @@ -534,7 +534,13 @@ public class ServerExplosion implements Explosion {

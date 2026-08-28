@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Mon, 30 Oct 2023 10:43:44 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
 Subject: [PATCH] Make Item tick vanilla
 
 
 diff --git a/net/minecraft/world/entity/item/ItemEntity.java b/net/minecraft/world/entity/item/ItemEntity.java
-index 77275360422e9e3d462891773029d4fcf428f9d3..42e58934d2835e879414b0da58bf76dd10c3d8d9 100644
+index afb1bc3fa8e44f3ed4d43a49515ce2449117b5d3..40d71479225333a6f6e200cba6b53a61d9f40507 100644
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
-@@ -133,6 +133,9 @@ public class ItemEntity extends Entity implements TraceableEntity {
+@@ -134,6 +134,9 @@ public class ItemEntity extends Entity implements TraceableEntity {
      // Paper start - EAR 2
      @Override
      public void inactiveTick() {
@@ -18,7 +18,7 @@ index 77275360422e9e3d462891773029d4fcf428f9d3..42e58934d2835e879414b0da58bf76dd
          super.inactiveTick();
          if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
              this.pickupDelay--;
-@@ -150,6 +153,8 @@ public class ItemEntity extends Entity implements TraceableEntity {
+@@ -151,6 +154,8 @@ public class ItemEntity extends Entity implements TraceableEntity {
              // CraftBukkit end
              this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
          }

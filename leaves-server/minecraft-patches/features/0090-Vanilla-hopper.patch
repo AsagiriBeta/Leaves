@@ -1,12 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Fri, 26 Jan 2024 01:36:34 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:00 +0000
 Subject: [PATCH] Vanilla hopper
 
-This is a temporary solution designed to attempt to restore the vanilla behavior of the funnel while preserving optimizations as much as possible. It should ultimately be replaced by the optimization solution provided by lithium.
 
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 0eda2031d23eb0a9bc345d3848c4bba1a259a8a5..94d4bd6b37dd950d7360b04fd37b14fdac857bca 100644
+index a79a19b050f7a78cd0fe6954296432acd5ace854..c8fab5a630c9b981dd190df7d77830d43af9a6f5 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -298,36 +298,58 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen

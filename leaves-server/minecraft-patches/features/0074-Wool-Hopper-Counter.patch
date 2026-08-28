@@ -1,12 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Tue, 4 Feb 2025 20:18:35 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 06:58:27 +0000
 Subject: [PATCH] Wool Hopper Counter
 
-This patch is Powered by fabric-carpet(https://github.com/gnembon/fabric-carpet)
 
 diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
-index 326e25d1226ed1f719265e32b6e2d64eab6059a6..0eda2031d23eb0a9bc345d3848c4bba1a259a8a5 100644
+index 89e7e329e24527e47b40be04589f862f807f53cd..a79a19b050f7a78cd0fe6954296432acd5ace854 100644
 --- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
 @@ -197,8 +197,30 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen

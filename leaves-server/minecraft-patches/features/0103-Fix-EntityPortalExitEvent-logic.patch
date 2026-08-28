@@ -1,14 +1,14 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Thu, 2 Jan 2025 22:01:17 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:38 +0000
 Subject: [PATCH] Fix EntityPortalExitEvent logic
 
 
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index 0ddca33c4161c18786f0cf855d25cd16da9dc420..44e87fc070a5602b5f8834a9ae057824f0188499 100644
+index 9d286d966359857567780f1b684bc718eda96a71..c17390a07b0c15955da470f8a34adab62cd6b378 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
-@@ -4093,19 +4093,21 @@ public abstract class Entity
+@@ -4168,19 +4168,21 @@ public abstract class Entity
                  );
                  event.callEvent();
  
@@ -32,7 +32,7 @@ index 0ddca33c4161c18786f0cf855d25cd16da9dc420..44e87fc070a5602b5f8834a9ae057824
 +                        to = event.getFrom().clone();
 +                        velocity = Vec3.ZERO;
                      }
-                     transition = new TeleportTransition(((org.bukkit.craftbukkit.CraftWorld) to.getWorld()).getHandle(), org.bukkit.craftbukkit.util.CraftLocation.toVec3(to), velocity, to.getYaw(), to.getPitch(), transition.missingRespawnBlock(), transition.asPassenger(), Set.of(), transition.postTeleportTransition(), transition.cause());
+                     transition = transition.withChangedLocation(to).withRelatives(Set.of()).withVelocity(velocity);
                  }
 +                // Leaves end - fix
              }

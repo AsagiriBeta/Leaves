@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Tue, 1 Jul 2025 01:29:07 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:01:53 +0000
 Subject: [PATCH] Old Throwable Projectile tick order
 
 
 diff --git a/net/minecraft/world/entity/projectile/ThrowableProjectile.java b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
-index 799165c7e09b151c929fa386c33c6985aedb54d3..e96b4a0de255dcb968e89a1da1c29464c0f99836 100644
+index 62a073c3cf878b8ef7592f5157b729b969e32107..2e1670fe0a9691cb6882984da8fb337e34f3b2ca 100644
 --- a/net/minecraft/world/entity/projectile/ThrowableProjectile.java
 +++ b/net/minecraft/world/entity/projectile/ThrowableProjectile.java
 @@ -45,6 +45,26 @@ public abstract class ThrowableProjectile extends Projectile {

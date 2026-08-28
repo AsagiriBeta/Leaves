@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Wed, 19 Jul 2023 19:59:58 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:07:15 +0000
 Subject: [PATCH] Disable packet limit
 
 
 diff --git a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
-index 232bc5e8b7cbb528b96f8048ba683705cddc436e..847e05d28002dfae2c8477cd3d97233780558122 100644
+index 936f8388c84b3d83a85390ec337a5d0a317838f4..e1b378678aab087cef1e6e6acd5f8ec11a8afa88 100644
 --- a/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 +++ b/src/main/java/io/papermc/paper/configuration/GlobalConfiguration.java
 @@ -261,7 +261,7 @@ public class GlobalConfiguration extends ConfigurationPart {

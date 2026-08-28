@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: violetc <58360096+s-yh-china@users.noreply.github.com>
-Date: Mon, 1 Jul 2024 22:09:33 +0800
+From: LeavesMC Test CI <ci-test@leavesmc.org>
+Date: Fri, 28 Aug 2026 07:00:19 +0000
 Subject: [PATCH] Disable end gateway portal entity ticking
 
 
 diff --git a/net/minecraft/world/level/block/EndGatewayBlock.java b/net/minecraft/world/level/block/EndGatewayBlock.java
-index e0874a0f424b81dcb694db0e83099ee82b2bfcff..c269726570398a518e4010c6188a9f5adb96623b 100644
+index e475477f5e46bdc2a2e57a5b6e8833ee140b9775..397e6a1e80542345fd0d4712b9786d4434a16dc1 100644
 --- a/net/minecraft/world/level/block/EndGatewayBlock.java
 +++ b/net/minecraft/world/level/block/EndGatewayBlock.java
 @@ -124,8 +124,10 @@ public class EndGatewayBlock extends BaseEntityBlock implements Portal {
@@ -15,19 +15,18 @@ index e0874a0f424b81dcb694db0e83099ee82b2bfcff..c269726570398a518e4010c6188a9f5a
 +                // Leaves start - Disable end gateway portal entity ticking
 +                TeleportTransition.PostTeleportTransition postTeleportTransition = org.leavesmc.leaves.LeavesConfig.modify.oldMC.disableGatewayPortalEntityTicking ? TeleportTransition.DO_NOTHING : TeleportTransition.PLACE_PORTAL_TICKET;
                  return entity instanceof ThrownEnderpearl
--                    ? new TeleportTransition(currentLevel, teleportPosition, Vec3.ZERO, 0.0F, 0.0F, Set.of(), TeleportTransition.PLACE_PORTAL_TICKET, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY) // CraftBukkit
-+                    ? new TeleportTransition(currentLevel, teleportPosition, Vec3.ZERO, 0.0F, 0.0F, Set.of(), postTeleportTransition, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY) // CraftBukkit
+-                    ? new TeleportTransition(currentLevel, teleportPosition, Vec3.ZERO, 0.0F, 0.0F, Set.of(), TeleportTransition.PLACE_PORTAL_TICKET).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY) // CraftBukkit
++                    ? new TeleportTransition(currentLevel, teleportPosition, Vec3.ZERO, 0.0F, 0.0F, Set.of(), postTeleportTransition).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY) // CraftBukkit
                      : new TeleportTransition(
                          currentLevel,
                          teleportPosition,
-@@ -133,9 +135,10 @@ public class EndGatewayBlock extends BaseEntityBlock implements Portal {
+@@ -133,8 +135,9 @@ public class EndGatewayBlock extends BaseEntityBlock implements Portal {
                          0.0F,
                          0.0F,
                          Relative.union(Relative.DELTA, Relative.ROTATION),
--                        TeleportTransition.PLACE_PORTAL_TICKET,
-+                        postTeleportTransition,
-                         org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY // CraftBukkit
-                     );
+-                        TeleportTransition.PLACE_PORTAL_TICKET
++                        postTeleportTransition
+                     ).withCause(org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.END_GATEWAY);  // CraftBukkit;
 +                // Leaves end - Disable end gateway portal entity ticking
              }
          } else {
