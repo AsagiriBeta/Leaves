@@ -295,6 +295,18 @@ public class ServerBot extends ServerPlayer {
             this.stopUsingItem();
             teleportTransition.postTeleportTransition().onTransition(this);
             this.isChangingDimension = false;
+
+            if (org.leavesmc.leaves.LeavesConfig.modify.netherPortalFix) {
+                final ResourceKey<Level> fromDim = fromLevel.dimension();
+                final ResourceKey<Level> toDim = level().dimension();
+                if (!((fromDim != Level.OVERWORLD || toDim != Level.NETHER) && (fromDim != Level.NETHER || toDim != Level.OVERWORLD))) {
+                    BlockPos fromPortal = org.leavesmc.leaves.util.ReturnPortalManager.findPortalAt(this, fromDim, lastPos);
+                    BlockPos toPos = this.blockPosition();
+                    if (fromPortal != null) {
+                        org.leavesmc.leaves.util.ReturnPortalManager.storeReturnPortal(this, toDim, toPos, fromPortal);
+                    }
+                }
+            }
             if (this.isBlocking()) {
                 this.stopUsingItem();
             }
@@ -336,7 +348,7 @@ public class ServerBot extends ServerPlayer {
     }
 
     @Override
-    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand) {
+    public @NotNull InteractionResult interact(@NotNull Player player, @NotNull InteractionHand hand, @NotNull net.minecraft.world.phys.Vec3 location) {
         if (LeavesConfig.modify.fakeplayer.canOpenInventory) {
             if (player instanceof ServerPlayer player1 && player.getMainHandItem().isEmpty()) {
                 BotInventoryOpenEvent event = new BotInventoryOpenEvent(this.getBukkitEntity(), player1.getBukkitEntity());
@@ -347,7 +359,7 @@ public class ServerBot extends ServerPlayer {
                 }
             }
         }
-        return super.interact(player, hand);
+        return super.interact(player, hand, location);
     }
 
     @Override

@@ -5,7 +5,6 @@ import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.util.Util;
 import org.leavesmc.leaves.LeavesConfig;
 import org.leavesmc.leaves.LeavesLogger;
-import org.leavesmc.leaves.bot.ServerBotPacketListenerImpl;
 import org.slf4j.Logger;
 
 import java.util.Map;
@@ -37,9 +36,6 @@ public final class AsyncKeepaliveManager {
         if (!LeavesConfig.mics.asyncKeepalive.enable) {
             return;
         }
-        if (listener instanceof ServerBotPacketListenerImpl) {
-            return;
-        }
         ACTIVE_LISTENERS.put(listener.connection, listener);
     }
 
@@ -54,7 +50,7 @@ public final class AsyncKeepaliveManager {
         for (ServerCommonPacketListenerImpl listener : ACTIVE_LISTENERS.values()) {
             try {
                 listener.keepConnectionAliveAsync(currentTimeNs, currentTimeMs);
-                if (!listener.connection.isConnected() || listener.processedDisconnect) {
+                if (!listener.connection.isConnected()) {
                     ACTIVE_LISTENERS.remove(listener.connection, listener);
                 }
             } catch (Throwable throwable) {
